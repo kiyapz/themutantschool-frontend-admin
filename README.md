@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MUTANT Admin Panel
+
+A modern, responsive admin dashboard built with Next.js 15, TypeScript, and Tailwind CSS.
+
+## Features
+
+- **Dark Theme**: Modern dark UI with purple accent colors
+- **Responsive Design**: Mobile-first approach with CSS variables
+- **Component-Based**: Modular React components
+- **TypeScript**: Full type safety
+- **Modern Icons**: Lucide React icons
+
+## Layout Structure
+
+The dashboard consists of three main layout sections:
+
+1. **Sidebar**: Core navigation with collapsible mobile menu
+2. **Header**: Top navigation with user profile and actions
+3. **Main Content**: Dashboard with statistics, missions, affiliates, and inbox
+
+## Components
+
+- `Sidebar`: Left navigation panel with core menu items
+- `Header`: Top header with search, notifications, and user profile
+- `StatsCards`: Statistics overview cards
+- `TopMissions`: Top performing missions list
+- `TopAffiliates`: Top performing affiliates list
+- `Inbox`: Recent activity and notifications
+
+## CSS Variables
+
+The project uses CSS custom properties for consistent theming:
+
+```css
+:root {
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #1a1a1a;
+  --bg-card: #1e1e1e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --accent-purple: #8b5cf6;
+  /* ... and more */
+}
+```
+
+## Responsive Breakpoints
+
+- **Mobile**: < 640px
+- **Tablet**: 640px - 1024px
+- **Desktop**: > 1024px
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technologies Used
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- Lucide React (Icons)
+- CSS Custom Properties
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+└── components/
+    ├── Sidebar.tsx
+    ├── Header.tsx
+    ├── StatsCards.tsx
+    ├── TopMissions.tsx
+    ├── TopAffiliates.tsx
+    ├── Inbox.tsx
+    └── index.ts
+```
