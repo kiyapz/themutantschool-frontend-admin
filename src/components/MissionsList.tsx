@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { MoreHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { MoreHorizontal } from "lucide-react";
 import adminApi from "@/utils/api";
 
 interface Mission {
@@ -146,36 +146,7 @@ export default function MissionsList() {
   const [sortBy, setSortBy] = useState<string>("oldest-to-newest");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  useEffect(() => {
-    fetchMissions();
-  }, []);
-
-  useEffect(() => {
-    applyFiltersAndSort();
-  }, [missions, sortBy, statusFilter]);
-
-  const fetchMissions = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await adminApi.get("/missions");
-      console.log("Missions API Response:", response.data);
-
-      if (response.data.success) {
-        setMissions(response.data.data);
-      } else {
-        setError("Failed to fetch missions");
-      }
-    } catch (err: any) {
-      console.error("Error fetching missions:", err);
-      setError(err.response?.data?.error || "Failed to fetch missions");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const applyFiltersAndSort = () => {
+  const applyFiltersAndSort = useCallback(() => {
     let filtered = [...missions];
 
     // Apply status filter
@@ -206,6 +177,40 @@ export default function MissionsList() {
     });
 
     setFilteredMissions(filtered);
+  }, [missions, sortBy, statusFilter]);
+
+  useEffect(() => {
+    fetchMissions();
+  }, []);
+
+  useEffect(() => {
+    applyFiltersAndSort();
+  }, [applyFiltersAndSort]);
+
+  const fetchMissions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await adminApi.get("/missions");
+      console.log("Missions API Response:", response.data);
+
+      if (response.data.success) {
+        setMissions(response.data.data);
+      } else {
+        setError("Failed to fetch missions");
+      }
+    } catch (err: unknown) {
+      console.error("Error fetching missions:", err);
+      const errorMessage =
+        err instanceof Error && "response" in err
+          ? (err as { response?: { data?: { error?: string } } }).response?.data
+              ?.error || "Failed to fetch missions"
+          : "Failed to fetch missions";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

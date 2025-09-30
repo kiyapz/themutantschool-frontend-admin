@@ -64,11 +64,14 @@ export default function LoginForm() {
       } else {
         setError(response.data.message || "Login failed.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error:", error);
-      setError(
-        error.response?.data?.message || "Login failed. Please try again."
-      );
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Login failed. Please try again."
+          : "Login failed. Please try again.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

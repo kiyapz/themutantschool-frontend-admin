@@ -88,7 +88,7 @@ async function validateCredentials(
 
   // For demo purposes, accept any email/password combination
   // In production, you should validate against your user database
-  return email && password && email.length > 0 && password.length > 0;
+  return Boolean(email && password && email.length > 0 && password.length > 0);
 }
 
 // Placeholder function - replace with your actual user data retrieval

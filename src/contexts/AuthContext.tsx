@@ -19,7 +19,7 @@ interface User {
   profile?: {
     avatar?: string;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface AuthContextType {

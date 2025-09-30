@@ -129,8 +129,9 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                 {user?.firstName || user?.username || "User"}
               </div>
               <div className="text-xs text-[var(--text-secondary)]">
-                {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1) ||
-                  "Admin"}
+                {user?.role
+                  ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                  : "Admin"}
               </div>
             </div>
             <ChevronDown
@@ -154,7 +155,9 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                     {user?.email}
                   </div>
                   <div className="text-xs text-[var(--accent-purple)] font-medium">
-                    {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}
+                    {user?.role
+                      ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                      : "Admin"}
                   </div>
                 </div>
 

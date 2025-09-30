@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { MoreHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { MoreHorizontal } from "lucide-react";
 import adminApi from "@/utils/api";
 
 interface Student {
@@ -126,36 +126,7 @@ export default function StudentsList() {
   const [sortBy, setSortBy] = useState<string>("oldest-to-newest");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  useEffect(() => {
-    applyFiltersAndSort();
-  }, [students, sortBy, statusFilter]);
-
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await adminApi.get("/users/students");
-      console.log("Students API Response:", response.data);
-
-      if (response.data.success) {
-        setStudents(response.data.data);
-      } else {
-        setError("Failed to fetch students");
-      }
-    } catch (err: any) {
-      console.error("Error fetching students:", err);
-      setError(err.response?.data?.error || "Failed to fetch students");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const applyFiltersAndSort = () => {
+  const applyFiltersAndSort = useCallback(() => {
     let filtered = [...students];
 
     // Apply status filter
@@ -190,6 +161,40 @@ export default function StudentsList() {
     });
 
     setFilteredStudents(filtered);
+  }, [students, sortBy, statusFilter]);
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  useEffect(() => {
+    applyFiltersAndSort();
+  }, [applyFiltersAndSort]);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await adminApi.get("/users/students");
+      console.log("Students API Response:", response.data);
+
+      if (response.data.success) {
+        setStudents(response.data.data);
+      } else {
+        setError("Failed to fetch students");
+      }
+    } catch (err: unknown) {
+      console.error("Error fetching students:", err);
+      const errorMessage =
+        err instanceof Error && "response" in err
+          ? (err as { response?: { data?: { error?: string } } }).response?.data
+              ?.error || "Failed to fetch students"
+          : "Failed to fetch students";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { MoreHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { MoreHorizontal } from "lucide-react";
 import adminApi from "@/utils/api";
 
 interface Instructor {
@@ -171,36 +171,7 @@ export default function InstructorsList() {
   const [sortBy, setSortBy] = useState<string>("oldest-to-newest");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  useEffect(() => {
-    fetchInstructors();
-  }, []);
-
-  useEffect(() => {
-    applyFiltersAndSort();
-  }, [instructors, sortBy, statusFilter]);
-
-  const fetchInstructors = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await adminApi.get("/users/instructors");
-      console.log("Instructors API Response:", response.data);
-
-      if (response.data.success) {
-        setInstructors(response.data.data);
-      } else {
-        setError("Failed to fetch instructors");
-      }
-    } catch (err: any) {
-      console.error("Error fetching instructors:", err);
-      setError(err.response?.data?.error || "Failed to fetch instructors");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const applyFiltersAndSort = () => {
+  const applyFiltersAndSort = useCallback(() => {
     let filtered = [...instructors];
 
     // Apply status filter
@@ -237,6 +208,40 @@ export default function InstructorsList() {
     });
 
     setFilteredInstructors(filtered);
+  }, [instructors, sortBy, statusFilter]);
+
+  useEffect(() => {
+    fetchInstructors();
+  }, []);
+
+  useEffect(() => {
+    applyFiltersAndSort();
+  }, [applyFiltersAndSort]);
+
+  const fetchInstructors = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await adminApi.get("/users/instructors");
+      console.log("Instructors API Response:", response.data);
+
+      if (response.data.success) {
+        setInstructors(response.data.data);
+      } else {
+        setError("Failed to fetch instructors");
+      }
+    } catch (err: unknown) {
+      console.error("Error fetching instructors:", err);
+      const errorMessage =
+        err instanceof Error && "response" in err
+          ? (err as { response?: { data?: { error?: string } } }).response?.data
+              ?.error || "Failed to fetch instructors"
+          : "Failed to fetch instructors";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

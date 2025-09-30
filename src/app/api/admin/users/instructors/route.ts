@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     // TODO: Replace with your actual backend API call
     // This is a placeholder - you should call your backend API
-    const instructors = await getInstructorsFromBackend(token);
+    const instructors = await getInstructorsFromBackend();
 
     return NextResponse.json({
       success: true,
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Placeholder function - replace with your actual backend API call
-async function getInstructorsFromBackend(token: string) {
+async function getInstructorsFromBackend() {
   // TODO: Replace with your actual backend API call
   // This could be:
   // - Direct database query
