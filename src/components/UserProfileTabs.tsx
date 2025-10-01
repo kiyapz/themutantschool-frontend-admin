@@ -456,8 +456,10 @@ export default function UserProfileTabs() {
         console.log("User deleted successfully");
         setSuccessMessage(
           `${
-            userDeleteModal.userType?.charAt(0).toUpperCase() +
-            userDeleteModal.userType?.slice(1)
+            userDeleteModal.userType
+              ? userDeleteModal.userType.charAt(0).toUpperCase() +
+                userDeleteModal.userType.slice(1)
+              : "User"
           } deleted successfully!`
         );
 
@@ -876,8 +878,8 @@ export default function UserProfileTabs() {
               className="text-sm text-[var(--text-secondary)]"
               style={{ marginBottom: "var(--spacing-xl)" }}
             >
-              Are you sure you want to delete "{deleteModal.missionTitle}"? This
-              action cannot be undone.
+              Are you sure you want to delete &quot;{deleteModal.missionTitle}
+              &quot;? This action cannot be undone.
             </p>
             <div
               style={{
@@ -937,15 +939,17 @@ export default function UserProfileTabs() {
               style={{ marginBottom: "var(--spacing-md)" }}
             >
               Delete{" "}
-              {userDeleteModal.userType?.charAt(0).toUpperCase() +
-                userDeleteModal.userType?.slice(1)}
+              {userDeleteModal.userType
+                ? userDeleteModal.userType.charAt(0).toUpperCase() +
+                  userDeleteModal.userType.slice(1)
+                : "User"}
             </h3>
             <p
               className="text-sm text-[var(--text-secondary)]"
               style={{ marginBottom: "var(--spacing-xl)" }}
             >
-              Are you sure you want to delete "{userDeleteModal.userName}"? This
-              action cannot be undone.
+              Are you sure you want to delete &quot;{userDeleteModal.userName}
+              &quot;? This action cannot be undone.
             </p>
             <div
               style={{

@@ -17,7 +17,10 @@ interface User {
   username: string;
   role: string;
   profile?: {
-    avatar?: string;
+    avatar?: {
+      url: string;
+      key?: string;
+    };
   };
   [key: string]: unknown;
 }
@@ -42,6 +45,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    // If on the login page, don't show loading screen
+    if (pathname === "/auth/login") {
+      setLoading(false);
+      return;
+    }
+
     // Check if user is authenticated on page load
     const checkAuth = () => {
       const token = localStorage.getItem("login-accessToken");
@@ -63,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     checkAuth();
-  }, []);
+  }, [pathname]);
 
   // Removed authentication restrictions - users can access all pages without login
 

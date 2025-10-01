@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const missionId = params.id;
+    const { id: missionId } = await params;
 
     if (!missionId) {
       return NextResponse.json(

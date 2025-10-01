@@ -16,6 +16,7 @@ export interface Transaction {
   month: string;
   releaseDate: string;
   createdAt: string;
+  refunded?: boolean;
 }
 
 interface StatusTagProps {
@@ -320,10 +321,6 @@ export default function PaymentTabs() {
     console.log("Toggling dropdown for transaction:", transactionId);
     console.log("Current dropdown open:", dropdownOpen);
     setDropdownOpen(dropdownOpen === transactionId ? null : transactionId);
-  };
-
-  const closeDropdown = () => {
-    setDropdownOpen(null);
   };
 
   const handleOpenRequest = (transaction: Transaction) => {

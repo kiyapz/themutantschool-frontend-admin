@@ -33,7 +33,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
   // If on login page or home page, don't show the layout wrapper
   if (pathname === "/auth/login" || pathname === "/") {
-    return <>{children}</>;
+    return <div>{children}</div>;
   }
 
   // Removed authentication check - all pages are accessible

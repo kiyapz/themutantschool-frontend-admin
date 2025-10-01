@@ -31,7 +31,29 @@ function StatCard({ title, value, loading = false }: StatCardProps) {
 }
 
 export default function AffiliateStats() {
-  const [affiliates, setAffiliates] = useState<any[]>([]);
+  const [affiliates, setAffiliates] = useState<
+    {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      isActive: boolean;
+      affiliateEarnings: number;
+      earningsBalance: number;
+      pendingBalance: number;
+      walletBalance: number;
+      level: number;
+      createdAt: string;
+      profile?: {
+        avatar?: {
+          url: string;
+          key: string;
+        };
+        city?: string;
+        country?: string;
+      };
+    }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -74,15 +96,24 @@ export default function AffiliateStats() {
             console.log("Affiliates length:", affiliatesData.length);
 
             const totalAffiliates = affiliatesData.length;
-            const activeAffiliates = affiliatesData.filter((affiliate: any) => {
-              console.log(
-                `Checking affiliate ${affiliate.firstName} ${affiliate.lastName}: isActive = ${affiliate.isActive}`
-              );
-              return affiliate.isActive;
-            }).length;
+            const activeAffiliates = affiliatesData.filter(
+              (affiliate: {
+                isActive: boolean;
+                firstName: string;
+                lastName: string;
+              }) => {
+                console.log(
+                  `Checking affiliate ${affiliate.firstName} ${affiliate.lastName}: isActive = ${affiliate.isActive}`
+                );
+                return affiliate.isActive;
+              }
+            ).length;
             const inactiveAffiliates = totalAffiliates - activeAffiliates;
             const totalCommissions = affiliatesData.reduce(
-              (sum: number, affiliate: any) => {
+              (
+                sum: number,
+                affiliate: { firstName: string; affiliateEarnings: number }
+              ) => {
                 console.log(
                   `Adding commissions for ${affiliate.firstName}: ${
                     affiliate.affiliateEarnings || 0
@@ -122,7 +153,9 @@ export default function AffiliateStats() {
         }
 
         if (error && typeof error === "object" && "response" in error) {
-          const axiosError = error as any;
+          const axiosError = error as {
+            response?: { status?: number; data?: unknown; headers?: unknown };
+          };
           console.error("Axios error response:", axiosError.response);
           console.error("Axios error status:", axiosError.response?.status);
           console.error("Axios error data:", axiosError.response?.data);
@@ -130,7 +163,7 @@ export default function AffiliateStats() {
         }
 
         if (error && typeof error === "object" && "request" in error) {
-          const axiosError = error as any;
+          const axiosError = error as { request?: unknown };
           console.error("Axios request error:", axiosError.request);
         }
 
@@ -158,11 +191,12 @@ export default function AffiliateStats() {
 
   const totalAffiliates = affiliates.length;
   const activeAffiliates = affiliates.filter(
-    (affiliate: any) => affiliate.isActive
+    (affiliate: { isActive: boolean }) => affiliate.isActive
   ).length;
   const inactiveAffiliates = totalAffiliates - activeAffiliates;
   const totalCommissions = affiliates.reduce(
-    (sum: number, affiliate: any) => sum + (affiliate.affiliateEarnings || 0),
+    (sum: number, affiliate: { affiliateEarnings: number }) =>
+      sum + (affiliate.affiliateEarnings || 0),
     0
   );
 

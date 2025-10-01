@@ -3,6 +3,7 @@
 import { MoreHorizontal, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import adminApi from "@/utils/api";
 
 interface Affiliate {
@@ -37,12 +38,21 @@ interface Affiliate {
     };
   };
   affiliateEarnings: number;
-  affiliateWithdrawals: any[];
+  affiliateWithdrawals: Array<{
+    _id: string;
+    amount: number;
+    status: string;
+    createdAt: string;
+  }>;
   earningsBalance: number;
   pendingBalance: number;
   walletBalance: number;
   level: number;
-  completedMissions: any[];
+  completedMissions: Array<{
+    _id: string;
+    title: string;
+    completedAt: string;
+  }>;
   // Add computed fields for display
   name: string;
   location: string;
@@ -86,9 +96,11 @@ function AffiliateRow({
       >
         <div className="flex items-center gap-3">
           {affiliate.profile?.avatar?.url ? (
-            <img
+            <Image
               src={affiliate.profile.avatar.url}
               alt={affiliate.name}
+              width={32}
+              height={32}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
@@ -97,9 +109,9 @@ function AffiliateRow({
               {affiliate.lastName.charAt(0)}
             </div>
           )}
-          <div>
-            <div className="font-medium">{affiliate.name}</div>
-            <div className="text-xs text-[var(--text-secondary)]">
+        <div>
+          <div className="font-medium">{affiliate.name}</div>
+          <div className="text-xs text-[var(--text-secondary)]">
               {affiliate.email}
             </div>
             <div className="text-xs text-[var(--text-secondary)]">
@@ -142,8 +154,8 @@ function AffiliateRow({
             className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             title="More Actions"
           >
-            <MoreHorizontal size={20} />
-          </button>
+          <MoreHorizontal size={20} />
+        </button>
 
           {isDropdownOpen && (
             <div
@@ -269,10 +281,6 @@ export default function AffiliatesList() {
     setDropdownOpen(dropdownOpen === affiliateId ? null : affiliateId);
   };
 
-  const closeDropdown = () => {
-    setDropdownOpen(null);
-  };
-
   useEffect(() => {
     setMounted(true);
 
@@ -365,7 +373,7 @@ export default function AffiliatesList() {
           if (Array.isArray(affiliatesData)) {
             console.log("Affiliates count:", affiliatesData.length);
             console.log("=== INDIVIDUAL AFFILIATES ===");
-            affiliatesData.forEach((affiliate: any, index: number) => {
+            affiliatesData.forEach((affiliate: Affiliate, index: number) => {
               console.log(`Affiliate ${index + 1}:`, {
                 _id: affiliate._id,
                 firstName: affiliate.firstName,
@@ -388,7 +396,7 @@ export default function AffiliatesList() {
             // Transform backend data to match our interface
             console.log("=== TRANSFORMING AFFILIATE DATA ===");
             const transformedAffiliates = affiliatesData.map(
-              (affiliate: any, index: number) => {
+              (affiliate: Affiliate, index: number) => {
                 console.log(`Transforming affiliate ${index + 1}:`, affiliate);
 
                 const transformed = {
@@ -405,7 +413,7 @@ export default function AffiliatesList() {
                   cashout: `$${
                     affiliate.affiliateWithdrawals
                       ?.reduce(
-                        (sum: number, withdrawal: any) =>
+                        (sum: number, withdrawal: { amount: number }) =>
                           sum + (withdrawal.amount || 0),
                         0
                       )
@@ -450,7 +458,9 @@ export default function AffiliatesList() {
         }
 
         if (err && typeof err === "object" && "response" in err) {
-          const axiosError = err as any;
+          const axiosError = err as {
+            response?: { status?: number; data?: unknown; headers?: unknown };
+          };
           console.error("Axios error response:", axiosError.response);
           console.error("Axios error status:", axiosError.response?.status);
           console.error("Axios error data:", axiosError.response?.data);
@@ -458,7 +468,7 @@ export default function AffiliatesList() {
         }
 
         if (err && typeof err === "object" && "request" in err) {
-          const axiosError = err as any;
+          const axiosError = err as { request?: unknown };
           console.error("Axios request error:", axiosError.request);
         }
 
@@ -701,8 +711,8 @@ export default function AffiliatesList() {
               className="text-sm text-[var(--text-secondary)]"
               style={{ marginBottom: "var(--spacing-xl)" }}
             >
-              Are you sure you want to delete "{deleteModal.affiliateName}"?
-              This action cannot be undone.
+              Are you sure you want to delete &quot;{deleteModal.affiliateName}
+              &quot;? This action cannot be undone.
             </p>
             <div
               style={{

@@ -233,8 +233,8 @@ function MissionRow({
             className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             title="More Actions"
           >
-            <MoreHorizontal size={16} />
-          </button>
+          <MoreHorizontal size={16} />
+        </button>
 
           {isDropdownOpen && (
             <div
@@ -469,10 +469,6 @@ export default function MissionsList() {
     console.log("Toggling dropdown for mission:", missionId);
     console.log("Current dropdown open:", dropdownOpen);
     setDropdownOpen(dropdownOpen === missionId ? null : missionId);
-  };
-
-  const closeDropdown = () => {
-    setDropdownOpen(null);
   };
 
   // Debug dropdown state changes
@@ -1066,8 +1062,8 @@ export default function MissionsList() {
               className="text-sm text-[var(--text-secondary)]"
               style={{ marginBottom: "var(--spacing-xl)" }}
             >
-              Are you sure you want to delete "{deleteModal.missionTitle}"? This
-              action cannot be undone.
+              Are you sure you want to delete &quot;{deleteModal.missionTitle}
+              &quot;? This action cannot be undone.
             </p>
             <div
               style={{

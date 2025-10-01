@@ -134,7 +134,7 @@ export default function TopMissions() {
 
         // Filter to only show published missions
         const publishedMissions = allMissions.filter(
-          (mission) => mission.isPublished === true
+          (mission: Mission) => mission.isPublished === true
         );
         console.log("Published missions only:", publishedMissions);
         console.log("Total missions:", allMissions.length);

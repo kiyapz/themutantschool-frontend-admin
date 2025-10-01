@@ -1,5 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 
+interface Mission {
+  _id: string;
+  title: string;
+  description: string;
+  isPublished: boolean;
+  status: string;
+  price: number;
+  isFree: boolean;
+  category: string;
+  skillLevel: string;
+  duration: number;
+  thumbnail?: {
+    url: string;
+    key: string;
+  };
+  instructor: string;
+  levels: Array<{
+    name: string;
+    title: string;
+    description: string;
+  }>;
+  reviews: Array<{
+    rating: number;
+    comment: string;
+  }>;
+  averageRating: number;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Get authorization header
@@ -81,11 +112,11 @@ async function getMissionsFromBackend(token: string) {
         console.log("First mission:", data.data[0]);
         console.log(
           "Published missions:",
-          data.data.filter((mission: any) => mission.isPublished).length
+          data.data.filter((mission: Mission) => mission.isPublished).length
         );
         console.log(
           "Draft missions:",
-          data.data.filter((mission: any) => !mission.isPublished).length
+          data.data.filter((mission: Mission) => !mission.isPublished).length
         );
       }
     }

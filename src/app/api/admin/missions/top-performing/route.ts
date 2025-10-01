@@ -91,11 +91,15 @@ async function getTopPerformingMissionsFromBackend(token: string) {
         console.log("First mission:", data.data[0]);
         console.log(
           "Published missions:",
-          data.data.filter((m) => m.isPublished === true).length
+          data.data.filter(
+            (m: { isPublished: boolean }) => m.isPublished === true
+          ).length
         );
         console.log(
           "Draft missions:",
-          data.data.filter((m) => m.isPublished === false).length
+          data.data.filter(
+            (m: { isPublished: boolean }) => m.isPublished === false
+          ).length
         );
       }
     }

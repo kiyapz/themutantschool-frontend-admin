@@ -5,7 +5,21 @@ import { useRouter } from "next/navigation";
 
 export default function AdminProfilePage() {
   const router = useRouter();
-  const [adminData, setAdminData] = useState<any>(null);
+  const [adminData, setAdminData] = useState<{
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+    createdAt: string;
+    lastLogin: string;
+    profile?: {
+      avatar?: {
+        url: string;
+        key: string;
+      };
+    };
+  } | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -132,7 +146,7 @@ export default function AdminProfilePage() {
                   }}
                 >
                   <li>
-                    Check if you're logged in (look for login-accessToken)
+                    Check if you&apos;re logged in (look for login-accessToken)
                   </li>
                   <li>Check if adminProfile or USER data exists</li>
                   <li>Check browser console for detailed logs</li>
@@ -212,9 +226,7 @@ export default function AdminProfilePage() {
             >
               <div className="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                 <span className="text-4xl font-bold text-white">
-                  {adminData.firstName?.charAt(0) ||
-                    adminData.name?.charAt(0) ||
-                    "A"}
+                  {adminData.firstName?.charAt(0) || "A"}
                 </span>
               </div>
               <div>
@@ -284,7 +296,7 @@ export default function AdminProfilePage() {
                       Admin ID
                     </label>
                     <p className="text-[var(--text-primary)] font-medium font-mono">
-                      {adminData._id || adminData.id || "N/A"}
+                      {adminData._id || "N/A"}
                     </p>
                   </div>
                 </div>

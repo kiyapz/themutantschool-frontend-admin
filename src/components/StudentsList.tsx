@@ -96,7 +96,7 @@ function StudentRow({
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center text-white font-bold text-xs">
               {student.firstName.charAt(0)}
               {student.lastName.charAt(0)}
-            </div>
+          </div>
           )}
           <div>
             <div className="text-sm font-medium text-[var(--text-primary)]">
@@ -139,8 +139,8 @@ function StudentRow({
             className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             title="More Actions"
           >
-            <MoreHorizontal size={16} />
-          </button>
+          <MoreHorizontal size={16} />
+        </button>
 
           {isDropdownOpen && (
             <div
@@ -264,10 +264,6 @@ export default function StudentsList() {
     console.log("Toggling dropdown for student:", studentId);
     console.log("Current dropdown open:", dropdownOpen);
     setDropdownOpen(dropdownOpen === studentId ? null : studentId);
-  };
-
-  const closeDropdown = () => {
-    setDropdownOpen(null);
   };
 
   const applyFiltersAndSort = useCallback(() => {
@@ -691,8 +687,8 @@ export default function StudentsList() {
               className="text-sm text-[var(--text-secondary)]"
               style={{ marginBottom: "var(--spacing-xl)" }}
             >
-              Are you sure you want to delete "{deleteModal.studentName}"? This
-              action cannot be undone.
+              Are you sure you want to delete &quot;{deleteModal.studentName}
+              &quot;? This action cannot be undone.
             </p>
             <div
               style={{
