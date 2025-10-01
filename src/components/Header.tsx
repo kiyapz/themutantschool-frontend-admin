@@ -67,7 +67,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
 
   return (
     <header
-      className="bg-[var(--bg-secondary)] flex items-center justify-between"
+      className="bg-[#000000] flex items-center justify-between"
       style={{ height: "var(--header-height)", padding: "0 var(--spacing-lg)" }}
     >
       {/* Left side */}
@@ -78,7 +78,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
         >
           <Menu size={24} />
         </button>
-        <h1 className="text-xs sm:text-sm md:text-lg lg:text-xl font-semibold text-[var(--text-primary)]">
+        <h1 className="text-[10px] sm:text-[19px] font-[400] text-[#909090] font-xirod">
           {getPageTitle()}
         </h1>
       </div>

@@ -44,7 +44,7 @@ interface MissionCardProps {
 function MissionCard({ mission }: MissionCardProps) {
   return (
     <div
-      className="bg-[var(--bg-card)] rounded-lg transition-colors"
+      className="bg-[#181818] rounded-lg transition-colors"
       style={{ padding: "var(--spacing-md)" }}
     >
       <div className="flex items-center" style={{ gap: "var(--spacing-md)" }}>
@@ -154,7 +154,7 @@ export default function TopMissions() {
   }, []);
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-lg">
+    <div className="bg-[#0C0C0C] rounded-lg">
       <div style={{ padding: "var(--spacing-lg)" }}>
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">
           Top Performing Missions
@@ -165,7 +165,7 @@ export default function TopMissions() {
           padding: "var(--spacing-lg)",
           display: "flex",
           flexDirection: "column",
-          gap: "var(--spacing-md)",
+          gap: "10px",
         }}
       >
         {loading ? (

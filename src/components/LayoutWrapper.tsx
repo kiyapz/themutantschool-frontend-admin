@@ -46,7 +46,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
         <Header onMenuToggle={toggleSidebar} />
 
         <main
-          className="flex-1 overflow-y-auto"
+          className="flex-1 overflow-y-auto bg-[#000000]"
           style={{ padding: "var(--spacing-lg)" }}
         >
           {children}

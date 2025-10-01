@@ -64,7 +64,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-        w-64 bg-[var(--bg-sidebar)] 
+        w-64 bg-[#000000] 
         transform transition-transform duration-300 ease-in-out z-50
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:static lg:z-auto
@@ -80,7 +80,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               padding: "0 var(--spacing-lg)",
             }}
           >
-            <h1 className="text-2xl font-bold text-[var(--accent-purple)] font-xirod">
+            <h1 className="text-[15px]  sm:text-[24px] font-[400] text-[#7343B3] font-xirod">
               MUTANT
             </h1>
             <button
@@ -94,7 +94,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           {/* Navigation */}
           <nav className="flex-1" style={{ padding: "var(--spacing-lg)" }}>
             <h2
-              className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+              className="text-[10px] sm:text-[15px] font-[600] text-[#898989] uppercase tracking-wider"
               style={{ marginBottom: "var(--spacing-md)" }}
             >
               Core Navigation
@@ -117,8 +117,8 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                       w-full flex items-center rounded-lg text-left transition-colors
                       ${
                         isActive
-                          ? "text-[var(--accent-purple)]"
-                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+                          ? "text-[#7343B3]"
+                          : "text-[#AEAEAE] hover:text-[var(--text-primary)] "
                       }
                     `}
                       style={{
