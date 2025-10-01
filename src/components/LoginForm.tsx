@@ -87,16 +87,6 @@ export default function LoginForm() {
           gap: "var(--spacing-lg)",
         }}
       >
-        {/* Error Message */}
-        {error && (
-          <div
-            className="bg-[var(--accent-red)] bg-opacity-10 border border-[var(--accent-red)] rounded-lg"
-            style={{ padding: "var(--spacing-sm)" }}
-          >
-            <p className="text-sm text-[var(--accent-red)]">{error}</p>
-          </div>
-        )}
-
         {/* Email Field */}
         <div>
           <input
@@ -106,7 +96,7 @@ export default function LoginForm() {
             value={formData.email}
             onChange={handleInputChange}
             required
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--accent-purple)] focus:border-transparent transition-colors"
+            className="w-full bg-[#131313]  rounded-lg text-white placeholder-[#4B4B4B] focus:outline-none   focus:border-transparent transition-colors"
             style={{ padding: "var(--spacing-md)" }}
             placeholder="Email"
           />
@@ -122,7 +112,7 @@ export default function LoginForm() {
               value={formData.password}
               onChange={handleInputChange}
               required
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--accent-purple)] focus:border-transparent transition-colors"
+              className="w-full bg-[#131313]  rounded-lg text-white placeholder-[#4B4B4B] focus:outline-none  focus:border-transparent transition-colors"
               style={{
                 padding: "var(--spacing-md)",
                 paddingRight: "var(--spacing-xl)",
@@ -150,7 +140,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="flex-1 bg-gradient-to-r from-[#9B3E85] to-[#4A00BC] cursor text-white rounded-lg font-medium hover:from-purple-700 hover:to-[#9B3E85] focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             style={{ padding: "var(--spacing-md)", gap: "var(--spacing-sm)" }}
           >
             {isLoading ? (
@@ -219,12 +209,18 @@ export default function LoginForm() {
           </button> */}
         </div>
       </form>
+      {/* Error Message */}
+      {error && (
+        <div className="">
+          <p className="text-sm text-[var(--accent-red)]">{error}</p>
+        </div>
+      )}
 
       {/* Call to Action - Commented out for now */}
 
       {/* Footer */}
       <div className="text-center" style={{ marginTop: "var(--spacing-lg)" }}>
-        <p className="text-xs text-gray-500">
+        <p className="text-[12px] text-[#717171]">
           Copyright MUTANT Admin Portal 2023
         </p>
       </div>

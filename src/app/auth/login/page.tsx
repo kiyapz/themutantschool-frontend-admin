@@ -39,18 +39,18 @@ export default function LoginPage() {
               style={{ marginBottom: "var(--spacing-2xl)" }}
             >
               <h1
-                className="text-4xl font-bold text-[var(--accent-purple)] font-xirod"
+                className="text-[15px]  sm:text-[26px] font-[400] text-[#391579] leading-[41pxpx] font-xirod"
                 style={{ marginBottom: "var(--spacing-md)" }}
               >
                 MUTANT
               </h1>
               <h2
-                className="text-3xl font-bold text-white font-xirod"
+                className="text-[15px]   sm:text-[31px] font-[400] text-white font-xirod"
                 style={{ marginBottom: "var(--spacing-sm)" }}
               >
                 ENTER THE LAB.
               </h2>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-[10px]  sm:text-[13px] font-[400] leading-[27px] text-[#CDE98D]">
                 Login to continue your mutation.
               </p>
             </div>
