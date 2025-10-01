@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MoreHorizontal, Trash2 } from "lucide-react";
 import adminApi from "@/utils/api";
 
 interface Instructor {
@@ -11,16 +12,19 @@ interface Instructor {
   email: string;
   username: string;
   role: string;
-  status: "active" | "inactive";
-  joinDate: string;
-  lastLogin: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
   profile: {
-    avatar?: string;
+    avatar?: {
+      url: string;
+      key: string;
+    };
     phone?: string;
-    country: string;
-    city: string;
+    country?: string;
+    city?: string;
     bio?: string;
-    specialties?: string[];
+    expertiseTags?: string[];
     socialLinks?: {
       linkedin?: string;
       github?: string;
@@ -32,6 +36,9 @@ interface Instructor {
       dev?: string;
     };
   };
+  // Add computed fields for display
+  status: "active" | "inactive";
+  joinDate: string;
   stats: {
     totalMissions: number;
     activeMissions: number;
@@ -44,11 +51,6 @@ interface Instructor {
     totalEarnings: number;
     monthlyEarnings: number;
     currency: string;
-  };
-  subscription: {
-    type: string;
-    status: string;
-    expiresAt?: string;
   };
 }
 
@@ -75,12 +77,22 @@ function StatusButton({ status }: StatusButtonProps) {
 function InstructorRow({
   instructor,
   index,
+  onClick,
+  onDelete,
+  onToggleDropdown,
+  isDropdownOpen,
 }: {
   instructor: Instructor;
   index: number;
+  onClick: () => void;
+  onDelete: (instructorId: string) => void;
+  onToggleDropdown: (instructorId: string) => void;
+  isDropdownOpen: boolean;
 }) {
   const fullName = `${instructor.firstName} ${instructor.lastName}`;
-  const location = `${instructor.profile.city}, ${instructor.profile.country}`;
+  const location = `${instructor.profile.city || "N/A"}, ${
+    instructor.profile.country || "N/A"
+  }`;
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -90,7 +102,11 @@ function InstructorRow({
 
   return (
     <tr
-      style={{ borderBottom: "1px solid var(--border-primary)" }}
+      onClick={onClick}
+      style={{
+        borderBottom: "1px solid var(--border-primary)",
+        cursor: "pointer",
+      }}
       className="hover:bg-[var(--bg-tertiary)] transition-colors"
     >
       <td
@@ -101,9 +117,17 @@ function InstructorRow({
       </td>
       <td style={{ padding: "var(--spacing-md)" }}>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-red-500 rounded-full flex items-center justify-center">
-            <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full"></div>
-          </div>
+          {instructor.profile.avatar?.url ? (
+            <img
+              src={instructor.profile.avatar.url}
+              alt={fullName}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-red-500 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full"></div>
+            </div>
+          )}
           <div>
             <div className="text-sm font-medium text-[var(--text-primary)]">
               {fullName}
@@ -153,15 +177,46 @@ function InstructorRow({
         <StatusButton status={instructor.status} />
       </td>
       <td style={{ padding: "var(--spacing-md)" }}>
-        <button className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-          <MoreHorizontal size={16} />
-        </button>
+        <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
+          <div className="relative" data-dropdown>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleDropdown(instructor._id);
+              }}
+              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              data-dropdown
+            >
+              <MoreHorizontal size={16} />
+            </button>
+
+            {isDropdownOpen && (
+              <div
+                className="absolute right-0 top-full mt-1 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg shadow-lg z-50 min-w-[120px]"
+                data-dropdown
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(instructor._id);
+                    onToggleDropdown(instructor._id);
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm text-[var(--accent-red)] hover:bg-[var(--bg-tertiary)] transition-colors flex items-center gap-2"
+                >
+                  <Trash2 size={14} />
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </td>
     </tr>
   );
 }
 
 export default function InstructorsList() {
+  const router = useRouter();
   const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [filteredInstructors, setFilteredInstructors] = useState<Instructor[]>(
     []
@@ -170,8 +225,101 @@ export default function InstructorsList() {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("oldest-to-newest");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [deleteModal, setDeleteModal] = useState<{
+    show: boolean;
+    instructorId: string | null;
+    instructorName: string;
+  }>({
+    show: false,
+    instructorId: null,
+    instructorName: "",
+  });
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleInstructorClick = (instructor: Instructor) => {
+    // Clear any existing user data in localStorage
+    localStorage.removeItem("selectedStudent");
+    localStorage.removeItem("selectedAffiliate");
+
+    // Store the instructor data in localStorage
+    localStorage.setItem("selectedInstructor", JSON.stringify(instructor));
+
+    // Navigate to profile page
+    router.push("/profile");
+  };
+
+  const handleDeleteInstructor = (instructorId: string) => {
+    const instructor = instructors.find((i) => i._id === instructorId);
+    if (instructor) {
+      setDeleteModal({
+        show: true,
+        instructorId: instructorId,
+        instructorName: `${instructor.firstName} ${instructor.lastName}`,
+      });
+    }
+  };
+
+  const toggleDropdown = (instructorId: string) => {
+    console.log("Toggling dropdown for instructor:", instructorId);
+    console.log("Current dropdown open:", dropdownOpen);
+    setDropdownOpen(dropdownOpen === instructorId ? null : instructorId);
+  };
+
+  const closeDropdown = () => {
+    setDropdownOpen(null);
+  };
+
+  const confirmDeleteInstructor = async () => {
+    if (!deleteModal.instructorId) return;
+
+    try {
+      setIsDeleting(true);
+      console.log("Deleting instructor:", deleteModal.instructorId);
+      const response = await adminApi.delete(
+        `/users/users/${deleteModal.instructorId}`
+      );
+
+      if (response.status === 200) {
+        console.log("Instructor deleted successfully");
+        // Remove the instructor from the local state
+        setInstructors((prevInstructors) =>
+          prevInstructors.filter((i) => i._id !== deleteModal.instructorId)
+        );
+        setDeleteModal({ show: false, instructorId: null, instructorName: "" });
+        setSuccessMessage(
+          `Instructor ${deleteModal.instructorName} deleted successfully!`
+        );
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
+      } else {
+        console.error("Failed to delete instructor:", response.data);
+        setError("Failed to delete instructor. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error deleting instructor:", err);
+      setError("Error deleting instructor. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const cancelDeleteInstructor = () => {
+    setDeleteModal({ show: false, instructorId: null, instructorName: "" });
+  };
 
   const applyFiltersAndSort = useCallback(() => {
+    // Ensure instructors is always an array
+    if (!Array.isArray(instructors)) {
+      console.warn("Instructors is not an array:", instructors);
+      setFilteredInstructors([]);
+      return;
+    }
+
     let filtered = [...instructors];
 
     // Apply status filter
@@ -211,6 +359,69 @@ export default function InstructorsList() {
   }, [instructors, sortBy, statusFilter]);
 
   useEffect(() => {
+    const fetchInstructors = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log("=== FETCHING INSTRUCTors FROM BACKEND ===");
+        console.log("Using endpoint: /api/admin/users/instructors");
+        const response = await adminApi.get("/users/instructors");
+        console.log("=== COMPLETE INSTRUCTORS API RESPONSE ===");
+        console.log("Instructors API Response:", response.data);
+
+        const instructorsData = response.data?.data?.data; // Correctly access nested data
+
+        if (instructorsData && Array.isArray(instructorsData)) {
+          console.log("✅ SUCCESS: Instructors data is an array!");
+          console.log("Instructors count:", instructorsData.length);
+
+          const transformedInstructors = instructorsData.map(
+            (instructor: any) => ({
+              ...instructor,
+              status: instructor.isActive ? "active" : "inactive",
+              joinDate: instructor.createdAt,
+              stats: {
+                totalMissions: instructor.completedMissions?.length || 0,
+                activeMissions: instructor.activeMissions?.length || 0,
+                completedMissions: instructor.completedMissions?.length || 0,
+                totalStudents: instructor.totalStudents || 0,
+                averageRating: instructor.averageRating || 0,
+                totalReviews: instructor.reviews?.length || 0,
+              },
+              earnings: {
+                totalEarnings: instructor.totalEarnings || 0,
+                monthlyEarnings: instructor.monthlyEarnings || 0,
+                currency: "USD",
+              },
+            })
+          );
+
+          console.log("=== TRANSFORMATION COMPLETE ===");
+          console.log("Transformed instructors:", transformedInstructors);
+          setInstructors(transformedInstructors);
+          console.log("=== INSTRUCTORS FETCH COMPLETE ===");
+        } else {
+          const errorMsg =
+            "Data received, but it is not in the expected format (array missing).";
+          console.error("❌ ERROR:", errorMsg);
+          console.error("Received data:", response.data);
+          setError(errorMsg);
+          setInstructors([]);
+        }
+      } catch (err: unknown) {
+        console.error("Error fetching instructors:", err);
+        const errorMessage =
+          err instanceof Error && "response" in err
+            ? (err as { response?: { data?: { error?: string } } }).response
+                ?.data?.error || "Failed to fetch instructors"
+            : "Failed to fetch instructors";
+        setError(errorMessage);
+        setInstructors([]);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchInstructors();
   }, []);
 
@@ -218,31 +429,24 @@ export default function InstructorsList() {
     applyFiltersAndSort();
   }, [applyFiltersAndSort]);
 
-  const fetchInstructors = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await adminApi.get("/users/instructors");
-      console.log("Instructors API Response:", response.data);
-
-      if (response.data.success) {
-        setInstructors(response.data.data);
-      } else {
-        setError("Failed to fetch instructors");
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (dropdownOpen && !target.closest("[data-dropdown]")) {
+        console.log("Clicking outside dropdown, closing it");
+        setDropdownOpen(null);
       }
-    } catch (err: unknown) {
-      console.error("Error fetching instructors:", err);
-      const errorMessage =
-        err instanceof Error && "response" in err
-          ? (err as { response?: { data?: { error?: string } } }).response?.data
-              ?.error || "Failed to fetch instructors"
-          : "Failed to fetch instructors";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
-  };
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
@@ -280,7 +484,76 @@ export default function InstructorsList() {
           <div className="text-center">
             <p className="text-[var(--accent-red)] mb-4">{error}</p>
             <button
-              onClick={fetchInstructors}
+              onClick={() => {
+                const fetchInstructors = async () => {
+                  try {
+                    setLoading(true);
+                    setError(null);
+                    console.log("=== RETRYING INSTRUCTORS FETCH ===");
+                    const response = await adminApi.get("/users/instructors");
+                    console.log("=== COMPLETE INSTRUCTORS API RESPONSE ===");
+                    console.log("Instructors API Response:", response.data);
+
+                    const instructorsData = response.data?.data?.data;
+                    if (instructorsData && Array.isArray(instructorsData)) {
+                      console.log("✅ SUCCESS: Instructors data is an array!");
+                      console.log("Instructors count:", instructorsData.length);
+
+                      const transformedInstructors = instructorsData.map(
+                        (instructor: any) => ({
+                          ...instructor,
+                          status: instructor.isActive ? "active" : "inactive",
+                          joinDate: instructor.createdAt,
+                          stats: {
+                            totalMissions:
+                              instructor.completedMissions?.length || 0,
+                            activeMissions:
+                              instructor.activeMissions?.length || 0,
+                            completedMissions:
+                              instructor.completedMissions?.length || 0,
+                            totalStudents: instructor.totalStudents || 0,
+                            averageRating: instructor.averageRating || 0,
+                            totalReviews: instructor.reviews?.length || 0,
+                          },
+                          earnings: {
+                            totalEarnings: instructor.totalEarnings || 0,
+                            monthlyEarnings: instructor.monthlyEarnings || 0,
+                            currency: "USD",
+                          },
+                        })
+                      );
+
+                      console.log("=== TRANSFORMATION COMPLETE ===");
+                      console.log(
+                        "Transformed instructors:",
+                        transformedInstructors
+                      );
+                      setInstructors(transformedInstructors);
+                      console.log("=== INSTRUCTORS FETCH COMPLETE ===");
+                    } else {
+                      const errorMsg =
+                        "Data received, but it is not in the expected format (array missing).";
+                      console.error("❌ ERROR:", errorMsg);
+                      console.error("Received data:", response.data);
+                      setError(errorMsg);
+                      setInstructors([]);
+                    }
+                  } catch (err: unknown) {
+                    console.error("Error fetching instructors:", err);
+                    const errorMessage =
+                      err instanceof Error && "response" in err
+                        ? (err as { response?: { data?: { error?: string } } })
+                            .response?.data?.error ||
+                          "Failed to fetch instructors"
+                        : "Failed to fetch instructors";
+                    setError(errorMessage);
+                    setInstructors([]);
+                  } finally {
+                    setLoading(false);
+                  }
+                };
+                fetchInstructors();
+              }}
               className="bg-[var(--accent-purple)] text-white px-4 py-2 rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
             >
               Retry
@@ -357,6 +630,16 @@ export default function InstructorsList() {
         </div>
       </div>
 
+      {/* Success Message */}
+      {successMessage && (
+        <div
+          className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
+          style={{ marginBottom: "var(--spacing-md)" }}
+        >
+          {successMessage}
+        </div>
+      )}
+
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%" }}>
@@ -418,6 +701,10 @@ export default function InstructorsList() {
                 key={instructor._id}
                 instructor={instructor}
                 index={index}
+                onClick={() => handleInstructorClick(instructor)}
+                onDelete={handleDeleteInstructor}
+                onToggleDropdown={toggleDropdown}
+                isDropdownOpen={dropdownOpen === instructor._id}
               />
             ))}
           </tbody>
@@ -451,6 +738,68 @@ export default function InstructorsList() {
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[100]"
+          style={{
+            background: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            className="bg-[var(--bg-card)] rounded-2xl shadow-2xl"
+            style={{
+              width: "90%",
+              maxWidth: "400px",
+              padding: "var(--spacing-xl)",
+              border: "1px solid var(--border-primary)",
+            }}
+          >
+            <h3
+              className="text-xl font-bold text-[var(--text-primary)]"
+              style={{ marginBottom: "var(--spacing-md)" }}
+            >
+              Delete Instructor
+            </h3>
+            <p
+              className="text-sm text-[var(--text-secondary)]"
+              style={{ marginBottom: "var(--spacing-xl)" }}
+            >
+              Are you sure you want to delete "{deleteModal.instructorName}"?
+              This action cannot be undone.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--spacing-sm)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                onClick={cancelDeleteInstructor}
+                className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors rounded-lg font-medium"
+                style={{
+                  padding: "var(--spacing-sm) var(--spacing-lg)",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteInstructor}
+                disabled={isDeleting}
+                className="bg-[var(--accent-red)] text-white hover:bg-red-600 transition-colors rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  padding: "var(--spacing-sm) var(--spacing-lg)",
+                }}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

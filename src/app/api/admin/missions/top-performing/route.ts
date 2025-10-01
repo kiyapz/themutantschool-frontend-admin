@@ -21,23 +21,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Call your actual backend API
-    const students = await getStudentsFromBackend(token);
+    const topMissions = await getTopPerformingMissionsFromBackend(token);
 
     const response = {
       success: true,
-      data: students,
-      total: students.length,
-      message: "Students retrieved successfully",
+      data: topMissions,
+      total: topMissions.length,
+      message: "Top performing missions retrieved successfully",
     };
 
-    console.log("=== STUDENTS API RESPONSE ===");
+    console.log("=== TOP PERFORMING MISSIONS API RESPONSE ===");
     console.log("Response:", response);
-    console.log("Total students:", students.length);
-    console.log("=============================");
+    console.log("Total missions:", topMissions.length);
+    console.log("===========================================");
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Get students error:", error);
+    console.error("Get top performing missions error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -46,16 +46,16 @@ export async function GET(request: NextRequest) {
 }
 
 // Call your actual backend API
-async function getStudentsFromBackend(token: string) {
+async function getTopPerformingMissionsFromBackend(token: string) {
   try {
     console.log("=== CALLING REAL BACKEND API ===");
     console.log(
-      "URL: https://themutantschool-backend.onrender.com/api/admin/users/students"
+      "URL: https://themutantschool-backend.onrender.com/api/admin/missions"
     );
     console.log("Token:", token);
 
     const response = await fetch(
-      "https://themutantschool-backend.onrender.com/api/admin/users/students",
+      "https://themutantschool-backend.onrender.com/api/admin/missions",
       {
         method: "GET",
         headers: {
@@ -79,16 +79,24 @@ async function getStudentsFromBackend(token: string) {
 
     const data = await response.json();
     console.log("=== REAL BACKEND DATA ===");
-    console.log("Students from backend:", data);
-    console.log("Students data type:", typeof data);
-    console.log("Students data keys:", Object.keys(data));
+    console.log("Missions from backend:", data);
+    console.log("Missions data type:", typeof data);
+    console.log("Missions data keys:", Object.keys(data));
     if (data.data) {
-      console.log("Students data.data:", data.data);
-      console.log("Students data.data type:", typeof data.data);
-      console.log("Students data.data is array:", Array.isArray(data.data));
+      console.log("Missions data.data:", data.data);
+      console.log("Missions data.data type:", typeof data.data);
+      console.log("Missions data.data is array:", Array.isArray(data.data));
       if (Array.isArray(data.data)) {
-        console.log("Students count:", data.data.length);
-        console.log("First student:", data.data[0]);
+        console.log("Missions count:", data.data.length);
+        console.log("First mission:", data.data[0]);
+        console.log(
+          "Published missions:",
+          data.data.filter((m) => m.isPublished === true).length
+        );
+        console.log(
+          "Draft missions:",
+          data.data.filter((m) => m.isPublished === false).length
+        );
       }
     }
     console.log("=========================");

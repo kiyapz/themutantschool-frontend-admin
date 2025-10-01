@@ -1,10 +1,40 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { fetchTopMissions } from "@/utils/api";
+
 interface Mission {
-  id: string;
+  _id: string;
   title: string;
+  description: string;
+  shortDescription: string;
+  bio: string;
+  category: string;
+  skillLevel: string;
+  estimatedDuration: string;
+  price: number;
+  isFree: boolean;
+  isPublished: boolean;
+  status: string;
+  certificateAvailable: boolean;
+  averageRating: number;
   instructor: string;
-  recruits: number;
-  certificates: number;
-  thumbnail: string;
+  thumbnail: {
+    url: string;
+    key: string;
+  };
+  video: {
+    url: string;
+    key: string;
+    type: string;
+  };
+  tags: string[];
+  levels: any[];
+  reviews: any[];
+  validCoupons: any[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 interface MissionCardProps {
@@ -19,8 +49,16 @@ function MissionCard({ mission }: MissionCardProps) {
     >
       <div className="flex items-center" style={{ gap: "var(--spacing-md)" }}>
         {/* Thumbnail */}
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-red-500 rounded-lg flex-shrink-0 flex items-center justify-center">
-          <div className="w-12 h-12 bg-white bg-opacity-20 rounded-md"></div>
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-red-500 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+          {mission.thumbnail?.url ? (
+            <img
+              src={mission.thumbnail.url}
+              alt={mission.title}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          ) : (
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-md"></div>
+          )}
         </div>
 
         {/* Content */}
@@ -32,17 +70,29 @@ function MissionCard({ mission }: MissionCardProps) {
             className="text-sm text-[var(--text-secondary)]"
             style={{ marginTop: "var(--spacing-xs)" }}
           >
-            {mission.instructor}
+            {mission.category} • {mission.skillLevel}
           </p>
           <div
-            className="flex"
-            style={{ gap: "var(--spacing-md)", marginTop: "var(--spacing-sm)" }}
+            className="flex flex-wrap"
+            style={{ gap: "var(--spacing-sm)", marginTop: "var(--spacing-sm)" }}
           >
             <span className="text-sm font-medium text-[var(--accent-yellow)]">
-              {mission.recruits} Recruits
+              {mission.estimatedDuration}
             </span>
-            <span className="text-sm font-medium text-[var(--accent-yellow)]">
-              {mission.certificates} Certificates
+            <span className="text-sm font-medium text-[var(--accent-green)]">
+              {mission.isFree ? "Free" : `$${mission.price}`}
+            </span>
+            <span className="text-sm font-medium text-[var(--accent-purple)]">
+              ⭐ {mission.averageRating || "No rating"}
+            </span>
+            <span
+              className={`text-sm font-medium px-2 py-1 rounded ${
+                mission.status === "published"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {mission.status}
             </span>
           </div>
         </div>
@@ -52,32 +102,56 @@ function MissionCard({ mission }: MissionCardProps) {
 }
 
 export default function TopMissions() {
-  const missions: Mission[] = [
-    {
-      id: "1",
-      title: "Javascript Fundamental",
-      instructor: "Abdulrahman Assan",
-      recruits: 71,
-      certificates: 50,
-      thumbnail: "/mission-thumb.jpg",
-    },
-    {
-      id: "2",
-      title: "Mobile App Design",
-      instructor: "Shaibu Mohammed",
-      recruits: 50,
-      certificates: 20,
-      thumbnail: "/mission-thumb.jpg",
-    },
-    {
-      id: "3",
-      title: "Flutter+ Masterclass",
-      instructor: "Abdulrahman Assan",
-      recruits: 43,
-      certificates: 21,
-      thumbnail: "/mission-thumb.jpg",
-    },
-  ];
+  const [missions, setMissions] = useState<Mission[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadTopMissions = async () => {
+      try {
+        setLoading(true);
+        console.log("Fetching top performing missions...");
+
+        const response = await fetchTopMissions();
+
+        console.log("=== TOP MISSIONS RESPONSE ===");
+        console.log("Response:", response);
+        console.log("Missions data:", response.data);
+        console.log("===========================");
+
+        // Handle the correct data structure from your backend
+        console.log("Response structure:", response);
+        console.log("Response.data:", response.data);
+        console.log("Response.data.data:", response.data?.data);
+        console.log("Type of response.data.data:", typeof response.data?.data);
+        console.log("Is array:", Array.isArray(response.data?.data));
+
+        // Access the nested data structure: response.data.data
+        const allMissions = Array.isArray(response.data?.data)
+          ? response.data.data
+          : [];
+        console.log("All missions from backend:", allMissions);
+
+        // Filter to only show published missions
+        const publishedMissions = allMissions.filter(
+          (mission) => mission.isPublished === true
+        );
+        console.log("Published missions only:", publishedMissions);
+        console.log("Total missions:", allMissions.length);
+        console.log("Published missions count:", publishedMissions.length);
+
+        setMissions(publishedMissions);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch top missions:", err);
+        setError("Failed to load top missions");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTopMissions();
+  }, []);
 
   return (
     <div className="bg-[var(--bg-card)] rounded-lg">
@@ -94,9 +168,21 @@ export default function TopMissions() {
           gap: "var(--spacing-md)",
         }}
       >
-        {missions.map((mission) => (
-          <MissionCard key={mission.id} mission={mission} />
-        ))}
+        {loading ? (
+          <div className="text-center text-[var(--text-secondary)] py-8">
+            Loading top missions...
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-8">{error}</div>
+        ) : !Array.isArray(missions) || missions.length === 0 ? (
+          <div className="text-center text-[var(--text-secondary)] py-8">
+            No missions found
+          </div>
+        ) : (
+          missions.map((mission) => (
+            <MissionCard key={mission._id} mission={mission} />
+          ))
+        )}
       </div>
     </div>
   );

@@ -14,15 +14,12 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.substring(7); // Remove "Bearer " prefix
 
-    // TODO: Validate the token with your backend
-    // For now, we'll just check if it exists
     if (!token) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // TODO: Replace with your actual backend API call
-    // This is a placeholder - you should call your backend API
-    const missions = await getMissionsFromBackend();
+    // Fetch real data from backend
+    const missions = await getMissionsFromBackend(token);
 
     return NextResponse.json({
       success: true,
@@ -39,91 +36,64 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Placeholder function - replace with your actual backend API call
-async function getMissionsFromBackend() {
-  // TODO: Replace with your actual backend API call
-  // This could be:
-  // - Direct database query
-  // - External API call to your backend
-  // - etc.
+async function getMissionsFromBackend(token: string) {
+  try {
+    console.log("=== CALLING REAL BACKEND API ===");
+    console.log(
+      "URL: https://themutantschool-backend.onrender.com/api/admin/missions"
+    );
+    console.log("Token:", token);
 
-  // For demo purposes, return mock data
-  // In production, you should fetch from your backend
-  return [
-    {
-      _id: "1",
-      title: "Javascript Fundamental",
-      instructor: "Abdulrahman Raian",
-      category: "Coding",
-      levels: 5,
-      capsules: 2,
-      recruits: 20,
-      price: 30,
-      priceType: "Lifetime",
-      status: "Active",
-      description: "Learn JavaScript from the ground up",
-      createdAt: "2024-01-15T10:00:00Z",
-      updatedAt: "2024-01-15T10:00:00Z",
-    },
-    {
-      _id: "2",
-      title: "Mobile App Design",
-      instructor: "Shadia Mohammed",
-      category: "Design",
-      levels: 5,
-      capsules: 3,
-      recruits: 30,
-      price: 500,
-      priceType: "Lifetime",
-      status: "Active",
-      description: "Master mobile app design principles",
-      createdAt: "2024-01-16T10:00:00Z",
-      updatedAt: "2024-01-16T10:00:00Z",
-    },
-    {
-      _id: "3",
-      title: "Flutter - Masterclass",
-      instructor: "Abdulrahman Raian",
-      category: "Coding",
-      levels: 5,
-      capsules: 3,
-      recruits: 20,
-      price: 0,
-      priceType: "Limited offer",
-      status: "Pending",
-      description: "Complete Flutter development course",
-      createdAt: "2024-01-17T10:00:00Z",
-      updatedAt: "2024-01-17T10:00:00Z",
-    },
-    {
-      _id: "4",
-      title: "HTML, Basics",
-      instructor: "Abdulrahman Raian",
-      category: "Coding",
-      levels: 5,
-      capsules: 2,
-      recruits: 20,
-      price: 0,
-      priceType: "Limited offer",
-      status: "Active",
-      description: "HTML fundamentals for beginners",
-      createdAt: "2024-01-18T10:00:00Z",
-      updatedAt: "2024-01-18T10:00:00Z",
-    },
-    {
-      _id: "5",
-      title: "Atomic Habit Book Review",
-      instructor: "Abdulrahman Raian",
-      category: "Growth",
-      levels: 5,
-      capsules: 3,
-      recruits: 20,
-      price: 20,
-      priceType: "Lifetime",
-      status: "Pending",
-      description: "Deep dive into Atomic Habits book",
-      createdAt: "2024-01-19T10:00:00Z",
-      updatedAt: "2024-01-19T10:00:00Z",
-    },
-  ];
+    const response = await fetch(
+      "https://themutantschool-backend.onrender.com/api/admin/missions",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Backend Response Status:", response.status);
+    console.log(
+      "Backend Response Headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Backend API Error:", errorText);
+      throw new Error(`Backend API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("=== REAL BACKEND DATA ===");
+    console.log("Missions from backend:", data);
+    console.log("Missions data type:", typeof data);
+    console.log("Missions data keys:", Object.keys(data));
+    if (data.data) {
+      console.log("Missions data.data:", data.data);
+      console.log("Missions data.data type:", typeof data.data);
+      console.log("Missions data.data is array:", Array.isArray(data.data));
+      if (Array.isArray(data.data)) {
+        console.log("Missions count:", data.data.length);
+        console.log("First mission:", data.data[0]);
+        console.log(
+          "Published missions:",
+          data.data.filter((mission: any) => mission.isPublished).length
+        );
+        console.log(
+          "Draft missions:",
+          data.data.filter((mission: any) => !mission.isPublished).length
+        );
+      }
+    }
+    console.log("=========================");
+
+    return data;
+  } catch (error) {
+    console.error("Error calling backend API:", error);
+    throw error;
+  }
 }

@@ -21,23 +21,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Call your actual backend API
-    const students = await getStudentsFromBackend(token);
+    const affiliates = await getAffiliatesFromBackend(token);
 
     const response = {
       success: true,
-      data: students,
-      total: students.length,
-      message: "Students retrieved successfully",
+      data: affiliates,
+      total: affiliates.length,
+      message: "Affiliates retrieved successfully",
     };
 
-    console.log("=== STUDENTS API RESPONSE ===");
+    console.log("=== AFFILIATES API RESPONSE ===");
     console.log("Response:", response);
-    console.log("Total students:", students.length);
-    console.log("=============================");
+    console.log("Total affiliates:", affiliates.length);
+    console.log("==============================");
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Get students error:", error);
+    console.error("Get affiliates error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -46,16 +46,16 @@ export async function GET(request: NextRequest) {
 }
 
 // Call your actual backend API
-async function getStudentsFromBackend(token: string) {
+async function getAffiliatesFromBackend(token: string) {
   try {
     console.log("=== CALLING REAL BACKEND API ===");
     console.log(
-      "URL: https://themutantschool-backend.onrender.com/api/admin/users/students"
+      "URL: https://themutantschool-backend.onrender.com/api/admin/users/affiliates"
     );
     console.log("Token:", token);
 
     const response = await fetch(
-      "https://themutantschool-backend.onrender.com/api/admin/users/students",
+      "https://themutantschool-backend.onrender.com/api/admin/users/affiliates",
       {
         method: "GET",
         headers: {
@@ -79,16 +79,16 @@ async function getStudentsFromBackend(token: string) {
 
     const data = await response.json();
     console.log("=== REAL BACKEND DATA ===");
-    console.log("Students from backend:", data);
-    console.log("Students data type:", typeof data);
-    console.log("Students data keys:", Object.keys(data));
+    console.log("Affiliates from backend:", data);
+    console.log("Affiliates data type:", typeof data);
+    console.log("Affiliates data keys:", Object.keys(data));
     if (data.data) {
-      console.log("Students data.data:", data.data);
-      console.log("Students data.data type:", typeof data.data);
-      console.log("Students data.data is array:", Array.isArray(data.data));
+      console.log("Affiliates data.data:", data.data);
+      console.log("Affiliates data.data type:", typeof data.data);
+      console.log("Affiliates data.data is array:", Array.isArray(data.data));
       if (Array.isArray(data.data)) {
-        console.log("Students count:", data.data.length);
-        console.log("First student:", data.data[0]);
+        console.log("Affiliates count:", data.data.length);
+        console.log("First affiliate:", data.data[0]);
       }
     }
     console.log("=========================");

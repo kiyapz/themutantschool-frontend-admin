@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MoreHorizontal, Trash2 } from "lucide-react";
 import adminApi from "@/utils/api";
 
 interface Student {
@@ -11,30 +12,22 @@ interface Student {
   email: string;
   username: string;
   role: string;
-  status: "active" | "inactive";
-  joinDate: string;
-  lastLogin: string;
+  isActive: boolean;
+  createdAt: string;
   profile: {
-    avatar?: string;
+    avatar?: { url: string };
     phone?: string;
     country: string;
     city: string;
   };
-  progress: {
-    completedMissions: number;
-    totalMissions: number;
-    completionRate: number;
-    currentLevel: string;
-  };
+  completedMissions: any[];
+  // Computed properties
+  status: "active" | "inactive";
+  joinDate: string;
   enrollment: {
     enrolledMissions: number;
     certificates: number;
     badges: number;
-  };
-  subscription: {
-    type: string;
-    status: string;
-    expiresAt?: string;
   };
 }
 
@@ -58,13 +51,31 @@ function StatusButton({ status }: StatusButtonProps) {
   );
 }
 
-function StudentRow({ student, index }: { student: Student; index: number }) {
+function StudentRow({
+  student,
+  index,
+  onClick,
+  onDelete,
+  onToggleDropdown,
+  isDropdownOpen,
+}: {
+  student: Student;
+  index: number;
+  onClick: () => void;
+  onDelete: (studentId: string) => void;
+  onToggleDropdown: (studentId: string) => void;
+  isDropdownOpen: boolean;
+}) {
   const fullName = `${student.firstName} ${student.lastName}`;
   const location = `${student.profile.city}, ${student.profile.country}`;
 
   return (
     <tr
-      style={{ borderBottom: "1px solid var(--border-primary)" }}
+      onClick={onClick}
+      style={{
+        borderBottom: "1px solid var(--border-primary)",
+        cursor: "pointer",
+      }}
       className="hover:bg-[var(--bg-tertiary)] transition-colors"
     >
       <td
@@ -75,9 +86,18 @@ function StudentRow({ student, index }: { student: Student; index: number }) {
       </td>
       <td style={{ padding: "var(--spacing-md)" }}>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-red-500 rounded-full flex items-center justify-center">
-            <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full"></div>
-          </div>
+          {student.profile.avatar?.url ? (
+            <img
+              src={student.profile.avatar.url}
+              alt={fullName}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center text-white font-bold text-xs">
+              {student.firstName.charAt(0)}
+              {student.lastName.charAt(0)}
+            </div>
+          )}
           <div>
             <div className="text-sm font-medium text-[var(--text-primary)]">
               {fullName}
@@ -98,7 +118,7 @@ function StudentRow({ student, index }: { student: Student; index: number }) {
         className="text-sm text-[var(--text-primary)]"
         style={{ padding: "var(--spacing-md)" }}
       >
-        {student.progress.completedMissions}
+        {student.completedMissions?.length || 0}
       </td>
       <td
         className="text-sm text-[var(--text-primary)]"
@@ -110,21 +130,145 @@ function StudentRow({ student, index }: { student: Student; index: number }) {
         <StatusButton status={student.status} />
       </td>
       <td style={{ padding: "var(--spacing-md)" }}>
-        <button className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-          <MoreHorizontal size={16} />
-        </button>
+        <div className="relative" data-dropdown>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleDropdown(student._id);
+            }}
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            title="More Actions"
+          >
+            <MoreHorizontal size={16} />
+          </button>
+
+          {isDropdownOpen && (
+            <div
+              className="absolute right-0 top-8 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg shadow-lg z-10"
+              style={{ minWidth: "160px" }}
+              data-dropdown
+            >
+              <div className="py-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(student._id);
+                  }}
+                  className="flex items-center w-full text-left text-[var(--accent-red)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                  style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
+                >
+                  <Trash2
+                    size={14}
+                    style={{ marginRight: "var(--spacing-sm)" }}
+                  />
+                  Delete
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </td>
     </tr>
   );
 }
 
 export default function StudentsList() {
+  const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("oldest-to-newest");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [mounted, setMounted] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{
+    show: boolean;
+    studentId: string | null;
+    studentName: string;
+  }>({
+    show: false,
+    studentId: null,
+    studentName: "",
+  });
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleStudentClick = (student: Student) => {
+    // Clear any existing user data in localStorage
+    localStorage.removeItem("selectedInstructor");
+    localStorage.removeItem("selectedAffiliate");
+
+    // Store the student data in localStorage
+    localStorage.setItem("selectedStudent", JSON.stringify(student));
+
+    // Navigate to profile page
+    router.push("/profile");
+  };
+
+  const handleDeleteStudent = (studentId: string) => {
+    const student = students.find((s) => s._id === studentId);
+    if (student) {
+      setDeleteModal({
+        show: true,
+        studentId: studentId,
+        studentName: `${student.firstName} ${student.lastName}`,
+      });
+    }
+  };
+
+  const confirmDeleteStudent = async () => {
+    if (!deleteModal.studentId) return;
+
+    try {
+      setIsDeleting(true);
+      setError(null);
+      setSuccessMessage(null);
+
+      console.log("Deleting student:", deleteModal.studentId);
+      const response = await adminApi.delete(
+        `/users/users/${deleteModal.studentId}`
+      );
+
+      if (response.status === 200) {
+        console.log("Student deleted successfully");
+        // Remove the student from the local state
+        setStudents((prevStudents) =>
+          prevStudents.filter((s) => s._id !== deleteModal.studentId)
+        );
+        setDeleteModal({ show: false, studentId: null, studentName: "" });
+        setDropdownOpen(null);
+        setSuccessMessage("Student deleted successfully!");
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
+      } else {
+        console.error("Failed to delete student:", response.data);
+        setError("Failed to delete student. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error deleting student:", err);
+      setError("Error deleting student. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const cancelDeleteStudent = () => {
+    setDeleteModal({ show: false, studentId: null, studentName: "" });
+  };
+
+  const toggleDropdown = (studentId: string) => {
+    console.log("Toggling dropdown for student:", studentId);
+    console.log("Current dropdown open:", dropdownOpen);
+    setDropdownOpen(dropdownOpen === studentId ? null : studentId);
+  };
+
+  const closeDropdown = () => {
+    setDropdownOpen(null);
+  };
 
   const applyFiltersAndSort = useCallback(() => {
     let filtered = [...students];
@@ -139,13 +283,13 @@ export default function StudentsList() {
       switch (sortBy) {
         case "newest-to-oldest":
           return (
-            new Date(b.joinDate || "").getTime() -
-            new Date(a.joinDate || "").getTime()
+            new Date(b.createdAt || "").getTime() -
+            new Date(a.createdAt || "").getTime()
           );
         case "oldest-to-newest":
           return (
-            new Date(a.joinDate || "").getTime() -
-            new Date(b.joinDate || "").getTime()
+            new Date(a.createdAt || "").getTime() -
+            new Date(b.createdAt || "").getTime()
           );
         case "name-a-z":
           return `${a.firstName} ${a.lastName}`.localeCompare(
@@ -164,38 +308,79 @@ export default function StudentsList() {
   }, [students, sortBy, statusFilter]);
 
   useEffect(() => {
+    setMounted(true);
+
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (dropdownOpen && !target.closest("[data-dropdown]")) {
+        console.log("Clicking outside dropdown, closing it");
+        setDropdownOpen(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  useEffect(() => {
+    setMounted(true);
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log("--- Fetching Students ---");
+        const response = await adminApi.get("/users/students");
+        console.log("Students API Response:", response.data);
+
+        // Data is nested in response.data.data.data
+        const studentsData = response.data?.data?.data;
+
+        if (studentsData && Array.isArray(studentsData)) {
+          console.log(`✅ Success! Found ${studentsData.length} students.`);
+          // Transform data to match front-end interface
+          const transformedStudents = studentsData.map((student: any) => ({
+            ...student,
+            status: student.isActive ? "active" : "inactive",
+            joinDate: student.createdAt,
+            enrollment: {
+              enrolledMissions: student.completedMissions?.length || 0, // Assuming enrolled is same as completed for now
+              certificates: student.badges?.length || 0, // Assuming certs are badges for now
+              badges: student.badges?.length || 0,
+            },
+          }));
+          console.log("Transformed Students:", transformedStudents);
+          setStudents(transformedStudents);
+        } else {
+          const errorMsg =
+            "Data received, but it is not in the expected format (array missing).";
+          console.error("❌", errorMsg, response.data);
+          setError(errorMsg);
+          setStudents([]);
+        }
+      } catch (err: unknown) {
+        console.error("❌ Error fetching students:", err);
+        const errorMessage =
+          err instanceof Error && "response" in err
+            ? (err as { response?: { data?: { error?: string } } }).response
+                ?.data?.error || "Failed to fetch students"
+            : "Failed to fetch students";
+        setError(errorMessage);
+        setStudents([]);
+      } finally {
+        setLoading(false);
+        console.log("--- Finished Fetching Students ---");
+      }
+    };
+
     fetchStudents();
   }, []);
 
   useEffect(() => {
     applyFiltersAndSort();
   }, [applyFiltersAndSort]);
-
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await adminApi.get("/users/students");
-      console.log("Students API Response:", response.data);
-
-      if (response.data.success) {
-        setStudents(response.data.data);
-      } else {
-        setError("Failed to fetch students");
-      }
-    } catch (err: unknown) {
-      console.error("Error fetching students:", err);
-      const errorMessage =
-        err instanceof Error && "response" in err
-          ? (err as { response?: { data?: { error?: string } } }).response?.data
-              ?.error || "Failed to fetch students"
-          : "Failed to fetch students";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
@@ -204,6 +389,24 @@ export default function StudentsList() {
   const handleStatusFilter = (status: string) => {
     setStatusFilter(status);
   };
+
+  if (!mounted) {
+    return (
+      <div className="bg-[var(--bg-card)] rounded-lg">
+        <div
+          className="flex items-center justify-center"
+          style={{ padding: "var(--spacing-2xl)" }}
+        >
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-[var(--accent-purple)] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-[var(--text-secondary)] mt-4">
+              Loading students...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -233,7 +436,55 @@ export default function StudentsList() {
           <div className="text-center">
             <p className="text-[var(--accent-red)] mb-4">{error}</p>
             <button
-              onClick={fetchStudents}
+              onClick={() => {
+                const fetchStudents = async () => {
+                  try {
+                    setLoading(true);
+                    setError(null);
+                    console.log("--- Retry: Fetching Students ---");
+                    const response = await adminApi.get("/users/students");
+                    console.log("Students API Response:", response.data);
+
+                    const studentsData = response.data?.data?.data;
+
+                    if (studentsData && Array.isArray(studentsData)) {
+                      console.log(
+                        `✅ Retry Success! Found ${studentsData.length} students.`
+                      );
+                      const transformedStudents = studentsData.map(
+                        (student: any) => ({
+                          ...student,
+                          status: student.isActive ? "active" : "inactive",
+                          joinDate: student.createdAt,
+                          enrollment: {
+                            enrolledMissions:
+                              student.completedMissions?.length || 0,
+                            certificates: student.badges?.length || 0,
+                            badges: student.badges?.length || 0,
+                          },
+                        })
+                      );
+                      setStudents(transformedStudents);
+                    } else {
+                      setError(
+                        "Failed to fetch students - invalid data format"
+                      );
+                    }
+                  } catch (err: unknown) {
+                    console.error("❌ Retry Error fetching students:", err);
+                    const errorMessage =
+                      err instanceof Error && "response" in err
+                        ? (err as { response?: { data?: { error?: string } } })
+                            .response?.data?.error || "Failed to fetch students"
+                        : "Failed to fetch students";
+                    setError(errorMessage);
+                  } finally {
+                    setLoading(false);
+                    console.log("--- Retry: Finished Fetching Students ---");
+                  }
+                };
+                fetchStudents();
+              }}
               className="bg-[var(--accent-purple)] text-white px-4 py-2 rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
             >
               Retry
@@ -310,6 +561,16 @@ export default function StudentsList() {
         </div>
       </div>
 
+      {/* Success Message */}
+      {successMessage && (
+        <div
+          className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
+          style={{ marginBottom: "var(--spacing-md)" }}
+        >
+          {successMessage}
+        </div>
+      )}
+
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%" }}>
@@ -361,7 +622,15 @@ export default function StudentsList() {
           </thead>
           <tbody>
             {filteredStudents.map((student, index) => (
-              <StudentRow key={student._id} student={student} index={index} />
+              <StudentRow
+                key={student._id}
+                student={student}
+                index={index}
+                onClick={() => handleStudentClick(student)}
+                onDelete={handleDeleteStudent}
+                onToggleDropdown={toggleDropdown}
+                isDropdownOpen={dropdownOpen === student._id}
+              />
             ))}
           </tbody>
         </table>
@@ -393,6 +662,72 @@ export default function StudentsList() {
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[100]"
+          style={{
+            background: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            className="bg-[var(--bg-card)] rounded-2xl shadow-2xl"
+            style={{
+              width: "90%",
+              maxWidth: "400px",
+              padding: "var(--spacing-xl)",
+              border: "1px solid var(--border-primary)",
+            }}
+          >
+            <h3
+              className="text-xl font-bold text-[var(--text-primary)]"
+              style={{ marginBottom: "var(--spacing-md)" }}
+            >
+              Delete Student
+            </h3>
+            <p
+              className="text-sm text-[var(--text-secondary)]"
+              style={{ marginBottom: "var(--spacing-xl)" }}
+            >
+              Are you sure you want to delete "{deleteModal.studentName}"? This
+              action cannot be undone.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--spacing-sm)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                onClick={cancelDeleteStudent}
+                className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors rounded-lg font-medium"
+                style={{
+                  padding: "var(--spacing-sm) var(--spacing-lg)",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteStudent}
+                disabled={isDeleting}
+                className={`${
+                  isDeleting
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[var(--accent-red)] hover:bg-red-600"
+                } text-white transition-colors rounded-lg font-medium`}
+                style={{
+                  padding: "var(--spacing-sm) var(--spacing-lg)",
+                }}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

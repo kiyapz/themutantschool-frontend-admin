@@ -31,12 +31,25 @@ const navigationItems = [
   { icon: Target, label: "Missions", href: "/missions" },
   { icon: DollarSign, label: "Payments", href: "/payments" },
   { icon: Settings, label: "Settings", href: "/settings" },
-  { icon: UserCheck, label: "Audit Log", href: "/audit-log" },
 ];
 
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    logout();
+  };
+
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };
 
   return (
     <>
@@ -124,7 +137,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
             {/* Logout Button */}
             <div style={{ marginTop: "var(--spacing-lg)" }}>
               <button
-                onClick={logout}
+                onClick={handleLogoutClick}
                 className="w-full flex items-center rounded-lg text-left transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
                 style={{
                   gap: "var(--spacing-sm)",
@@ -138,6 +151,67 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           </nav>
         </div>
       </aside>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[100]"
+          style={{
+            background: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            className="bg-[var(--bg-card)] rounded-2xl shadow-2xl"
+            style={{
+              width: "90%",
+              maxWidth: "400px",
+              padding: "var(--spacing-xl)",
+              border: "1px solid var(--border-primary)",
+            }}
+          >
+            <h3
+              className="text-xl font-bold text-[var(--text-primary)]"
+              style={{ marginBottom: "var(--spacing-md)" }}
+            >
+              Confirm Logout
+            </h3>
+            <p
+              className="text-sm text-[var(--text-secondary)]"
+              style={{ marginBottom: "var(--spacing-xl)" }}
+            >
+              Are you sure you want to logout? You will need to sign in again to
+              access your account.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--spacing-sm)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                onClick={handleCancelLogout}
+                className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors rounded-lg font-medium"
+                style={{
+                  padding: "var(--spacing-sm) var(--spacing-lg)",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmLogout}
+                className="bg-[var(--accent-red)] text-white hover:bg-red-600 transition-colors rounded-lg font-medium"
+                style={{
+                  padding: "var(--spacing-sm) var(--spacing-lg)",
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

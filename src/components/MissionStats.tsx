@@ -7,16 +7,33 @@ interface Mission {
   _id: string;
   title: string;
   instructor: string;
-  category: "Coding" | "Design" | "Growth";
-  levels: number;
-  capsules: number;
-  recruits: number;
+  category: string;
+  skillLevel: string;
+  estimatedDuration: string;
   price: number;
-  priceType: "Lifetime" | "Limited offer" | "Free";
-  status: "Active" | "Pending";
+  isFree: boolean;
+  isPublished: boolean;
+  status: string;
+  averageRating: number;
+  reviews: any[];
   description?: string;
+  shortDescription?: string;
+  bio?: string;
   createdAt?: string;
   updatedAt?: string;
+  thumbnail?: {
+    url: string;
+    key: string;
+  };
+  video?: {
+    url: string;
+    key: string;
+    type: string;
+  };
+  certificateAvailable?: boolean;
+  tags?: string[];
+  levels?: any[];
+  validCoupons?: any[];
 }
 
 interface StatCardProps {
@@ -51,18 +68,36 @@ function StatCard({ title, value, loading = false }: StatCardProps) {
 export default function MissionStats() {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchMissions();
   }, []);
 
   const fetchMissions = async () => {
     try {
       setLoading(true);
-      const response = await adminApi.get("/missions");
+      console.log("=== FETCHING MISSIONS FROM BACKEND ===");
+      console.log("Using endpoint: /api/admin/missions");
 
-      if (response.data.success) {
-        setMissions(response.data.data);
+      const response = await adminApi.get("/missions");
+      console.log("Missions API Response:", response.data);
+      console.log("Response data type:", typeof response.data);
+      console.log("Response data keys:", Object.keys(response.data));
+      console.log("Response success:", response.data.success);
+      console.log("Response message:", response.data.message);
+
+      // The array is nested in response.data.data.data
+      const missionsArray = response?.data?.data?.data;
+
+      if (missionsArray && Array.isArray(missionsArray)) {
+        console.log(`✅ Success! Found ${missionsArray.length} missions.`);
+        setMissions(missionsArray);
+      } else {
+        const errorMsg =
+          "Data received, but it is not in the expected format (array missing).";
+        console.error("❌", errorMsg, response.data);
       }
     } catch (err) {
       console.error("Error fetching missions for stats:", err);
@@ -72,29 +107,72 @@ export default function MissionStats() {
   };
 
   // Calculate statistics from the actual data
-  const activeMissions = missions.filter(
-    (mission) => mission.status === "Active"
-  ).length;
-  const pendingMissions = missions.filter(
-    (mission) => mission.status === "Pending"
-  ).length;
+  console.log("=== MISSION STATS DEBUG ===");
+  console.log(
+    "All missions for stats:",
+    missions.map((m) => ({
+      title: m.title,
+      isPublished: m.isPublished,
+      status: m.status,
+      _id: m._id,
+    }))
+  );
+
+  const publishedMissions = missions.filter((mission) => {
+    const isPublishedBool = mission.isPublished === true;
+    const isPublishedString =
+      mission.status && mission.status.toLowerCase() === "published";
+    const result = isPublishedBool || isPublishedString;
+    console.log(
+      `Published check - ${mission.title}: isPublished=${mission.isPublished}, status=${mission.status}, result=${result}`
+    );
+    return result;
+  }).length;
+
+  const draftMissions = missions.filter((mission) => {
+    const isDraftBool = mission.isPublished === false;
+    const isDraftString =
+      mission.status && mission.status.toLowerCase() === "draft";
+    const result = isDraftBool || isDraftString;
+    console.log(
+      `Draft check - ${mission.title}: isPublished=${mission.isPublished}, status=${mission.status}, result=${result}`
+    );
+    return result;
+  }).length;
+
+  console.log(
+    `Published count: ${publishedMissions}, Draft count: ${draftMissions}`
+  );
+  console.log("=== END MISSION STATS DEBUG ===");
   const totalMissions = missions.length;
-  const publishedMissions = missions.filter(
-    (mission) => mission.status === "Active"
-  ).length; // Assuming Active = Published
+  const freeMissions = missions.filter(
+    (mission) => mission.isFree === true
+  ).length;
+  const paidMissions = totalMissions - freeMissions;
+
+  console.log("=== CALCULATED STATISTICS ===");
+  console.log("Total missions:", totalMissions);
+  console.log("Published missions:", publishedMissions);
+  console.log("Draft missions:", draftMissions);
+  console.log("Free missions:", freeMissions);
+  console.log("Paid missions:", paidMissions);
 
   const stats = [
-    {
-      title: "Active Missions",
-      value: activeMissions.toString(),
-    },
     {
       title: "Published Missions",
       value: publishedMissions.toString(),
     },
     {
-      title: "Missions Pending Review",
-      value: pendingMissions.toString(),
+      title: "Draft Missions",
+      value: draftMissions.toString(),
+    },
+    {
+      title: "Free Missions",
+      value: freeMissions.toString(),
+    },
+    {
+      title: "Paid Missions",
+      value: paidMissions.toString(),
     },
     {
       title: "Total Missions",
@@ -102,9 +180,22 @@ export default function MissionStats() {
     },
   ];
 
+  if (!mounted) {
+    return (
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5"
+        style={{ gap: "var(--spacing-lg)" }}
+      >
+        {[1, 2, 3, 4, 5].map((index) => (
+          <StatCard key={index} title="Loading..." value="..." loading={true} />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5"
       style={{ gap: "var(--spacing-lg)" }}
     >
       {stats.map((stat, index) => (

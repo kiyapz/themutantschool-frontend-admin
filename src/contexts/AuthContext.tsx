@@ -80,10 +80,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Store token in localStorage for client-side auth checks
-        const token = `mutant_admin_${email}_${Date.now()}`;
-        localStorage.setItem("login-accessToken", token);
+        console.log("=== LOGIN SUCCESS DEBUG ===");
+        console.log("API Response:", data);
+        console.log("User data from API:", data.user);
+
+        // Store the actual access token from the API response
+        localStorage.setItem("login-accessToken", data.accessToken);
+        console.log("Stored access token:", data.accessToken);
+
+        // Use the real user data from the API response
+        const userData = data.user;
+
+        // Add lastLogin timestamp to the user data
+        const adminProfile = {
+          ...userData,
+          lastLogin: new Date().toISOString(),
+        };
+
+        console.log("Created admin profile:", adminProfile);
+
+        // Save admin profile to localStorage
+        localStorage.setItem("adminProfile", JSON.stringify(adminProfile));
+        localStorage.setItem("USER", JSON.stringify(adminProfile));
+
+        console.log("Saved to localStorage:");
+        console.log("adminProfile:", localStorage.getItem("adminProfile"));
+        console.log("USER:", localStorage.getItem("USER"));
+
+        setUser(adminProfile);
         setIsAuthenticated(true);
+        console.log("Set user state and authentication");
         router.push("/admin");
         return true;
       } else {
@@ -113,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear client-side storage and state
       localStorage.removeItem("login-accessToken");
       localStorage.removeItem("USER");
+      localStorage.removeItem("adminProfile");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("mutant_admin_token");
       setUser(null);

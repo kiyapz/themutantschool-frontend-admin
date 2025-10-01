@@ -20,16 +20,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // TODO: Replace with your actual backend API call
-    // This is a placeholder - you should call your backend API
-    const instructors = await getInstructorsFromBackend();
+    // Call your actual backend API
+    const instructors = await getInstructorsFromBackend(token);
 
-    return NextResponse.json({
+    const response = {
       success: true,
       data: instructors,
       total: instructors.length,
       message: "Instructors retrieved successfully",
-    });
+    };
+
+    console.log("=== INSTRUCTORS API RESPONSE ===");
+    console.log("Response:", response);
+    console.log("Total instructors:", instructors.length);
+    console.log("================================");
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Get instructors error:", error);
     return NextResponse.json(
@@ -39,258 +45,57 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Placeholder function - replace with your actual backend API call
-async function getInstructorsFromBackend() {
-  // TODO: Replace with your actual backend API call
-  // This could be:
-  // - Direct database query
-  // - External API call to your backend
-  // - etc.
+// Call your actual backend API
+async function getInstructorsFromBackend(token: string) {
+  try {
+    console.log("=== CALLING REAL BACKEND API ===");
+    console.log(
+      "URL: https://themutantschool-backend.onrender.com/api/admin/users/instructors"
+    );
+    console.log("Token:", token);
 
-  // For demo purposes, return mock data
-  // In production, you should fetch from your backend
-  return [
-    {
-      _id: "1",
-      firstName: "Abdulrahman",
-      lastName: "Raian",
-      email: "abdulrahman.raian@example.com",
-      username: "abdulrahman_raian",
-      role: "instructor",
-      status: "active",
-      joinDate: "2023-12-01T09:00:00Z",
-      lastLogin: "2024-01-20T16:30:00Z",
-      profile: {
-        avatar: null,
-        phone: "+1234567800",
-        country: "Egypt",
-        city: "Cairo",
-        bio: "Senior Full-Stack Developer with 8+ years of experience in JavaScript, React, Node.js, and Python.",
-        specialties: [
-          "JavaScript",
-          "React",
-          "Node.js",
-          "Python",
-          "Web Development",
-        ],
-        socialLinks: {
-          linkedin: "https://linkedin.com/in/abdulrahman-raian",
-          github: "https://github.com/abdulrahman-raian",
-          twitter: "https://twitter.com/abdulrahman_raian",
+    const response = await fetch(
+      "https://themutantschool-backend.onrender.com/api/admin/users/instructors",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      },
-      stats: {
-        totalMissions: 8,
-        activeMissions: 6,
-        completedMissions: 2,
-        totalStudents: 245,
-        averageRating: 4.8,
-        totalReviews: 89,
-      },
-      earnings: {
-        totalEarnings: 12500,
-        monthlyEarnings: 2100,
-        currency: "USD",
-      },
-      subscription: {
-        type: "Premium",
-        status: "active",
-        expiresAt: "2024-12-31T23:59:59Z",
-      },
-    },
-    {
-      _id: "2",
-      firstName: "Shadia",
-      lastName: "Mohammed",
-      email: "shadia.mohammed@example.com",
-      username: "shadia_mohammed",
-      role: "instructor",
-      status: "active",
-      joinDate: "2023-11-15T10:30:00Z",
-      lastLogin: "2024-01-19T14:20:00Z",
-      profile: {
-        avatar: null,
-        phone: "+1234567801",
-        country: "Saudi Arabia",
-        city: "Riyadh",
-        bio: "UI/UX Designer and Frontend Developer specializing in modern design systems and user experience.",
-        specialties: [
-          "UI/UX Design",
-          "Figma",
-          "Adobe Creative Suite",
-          "CSS",
-          "Design Systems",
-        ],
-        socialLinks: {
-          linkedin: "https://linkedin.com/in/shadia-mohammed",
-          behance: "https://behance.net/shadia-mohammed",
-          dribbble: "https://dribbble.com/shadia-mohammed",
-        },
-      },
-      stats: {
-        totalMissions: 5,
-        activeMissions: 4,
-        completedMissions: 1,
-        totalStudents: 180,
-        averageRating: 4.9,
-        totalReviews: 67,
-      },
-      earnings: {
-        totalEarnings: 8900,
-        monthlyEarnings: 1650,
-        currency: "USD",
-      },
-      subscription: {
-        type: "Premium",
-        status: "active",
-        expiresAt: "2024-12-31T23:59:59Z",
-      },
-    },
-    {
-      _id: "3",
-      firstName: "Ahmed",
-      lastName: "Hassan",
-      email: "ahmed.hassan@example.com",
-      username: "ahmed_hassan",
-      role: "instructor",
-      status: "inactive",
-      joinDate: "2023-10-20T08:45:00Z",
-      lastLogin: "2024-01-15T11:10:00Z",
-      profile: {
-        avatar: null,
-        phone: "+1234567802",
-        country: "UAE",
-        city: "Dubai",
-        bio: "Mobile App Developer and Flutter expert with extensive experience in cross-platform development.",
-        specialties: [
-          "Flutter",
-          "Dart",
-          "Mobile Development",
-          "Firebase",
-          "API Integration",
-        ],
-        socialLinks: {
-          linkedin: "https://linkedin.com/in/ahmed-hassan",
-          github: "https://github.com/ahmed-hassan",
-          medium: "https://medium.com/@ahmed-hassan",
-        },
-      },
-      stats: {
-        totalMissions: 3,
-        activeMissions: 1,
-        completedMissions: 2,
-        totalStudents: 95,
-        averageRating: 4.6,
-        totalReviews: 34,
-      },
-      earnings: {
-        totalEarnings: 4200,
-        monthlyEarnings: 0,
-        currency: "USD",
-      },
-      subscription: {
-        type: "Basic",
-        status: "inactive",
-        expiresAt: "2024-01-10T23:59:59Z",
-      },
-    },
-    {
-      _id: "4",
-      firstName: "Fatima",
-      lastName: "Ali",
-      email: "fatima.ali@example.com",
-      username: "fatima_ali",
-      role: "instructor",
-      status: "active",
-      joinDate: "2023-09-10T12:00:00Z",
-      lastLogin: "2024-01-20T09:45:00Z",
-      profile: {
-        avatar: null,
-        phone: "+1234567803",
-        country: "Jordan",
-        city: "Amman",
-        bio: "Data Science and Machine Learning expert with a passion for teaching AI and analytics.",
-        specialties: [
-          "Python",
-          "Machine Learning",
-          "Data Science",
-          "TensorFlow",
-          "Pandas",
-          "NumPy",
-        ],
-        socialLinks: {
-          linkedin: "https://linkedin.com/in/fatima-ali",
-          github: "https://github.com/fatima-ali",
-          kaggle: "https://kaggle.com/fatima-ali",
-        },
-      },
-      stats: {
-        totalMissions: 6,
-        activeMissions: 5,
-        completedMissions: 1,
-        totalStudents: 320,
-        averageRating: 4.7,
-        totalReviews: 112,
-      },
-      earnings: {
-        totalEarnings: 15200,
-        monthlyEarnings: 2800,
-        currency: "USD",
-      },
-      subscription: {
-        type: "Premium",
-        status: "active",
-        expiresAt: "2024-12-31T23:59:59Z",
-      },
-    },
-    {
-      _id: "5",
-      firstName: "Omar",
-      lastName: "Mahmoud",
-      email: "omar.mahmoud@example.com",
-      username: "omar_mahmoud",
-      role: "instructor",
-      status: "active",
-      joinDate: "2024-01-05T14:20:00Z",
-      lastLogin: "2024-01-20T13:15:00Z",
-      profile: {
-        avatar: null,
-        phone: "+1234567804",
-        country: "Kuwait",
-        city: "Kuwait City",
-        bio: "DevOps Engineer and Cloud Computing specialist focused on scalable infrastructure and automation.",
-        specialties: [
-          "AWS",
-          "Docker",
-          "Kubernetes",
-          "CI/CD",
-          "Linux",
-          "Terraform",
-        ],
-        socialLinks: {
-          linkedin: "https://linkedin.com/in/omar-mahmoud",
-          github: "https://github.com/omar-mahmoud",
-          dev: "https://dev.to/omar-mahmoud",
-        },
-      },
-      stats: {
-        totalMissions: 2,
-        activeMissions: 2,
-        completedMissions: 0,
-        totalStudents: 45,
-        averageRating: 4.5,
-        totalReviews: 18,
-      },
-      earnings: {
-        totalEarnings: 1800,
-        monthlyEarnings: 900,
-        currency: "USD",
-      },
-      subscription: {
-        type: "Basic",
-        status: "active",
-        expiresAt: "2024-06-30T23:59:59Z",
-      },
-    },
-  ];
+      }
+    );
+
+    console.log("Backend Response Status:", response.status);
+    console.log(
+      "Backend Response Headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Backend API Error:", errorText);
+      throw new Error(`Backend API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("=== REAL BACKEND DATA ===");
+    console.log("Instructors from backend:", data);
+    console.log("Instructors data type:", typeof data);
+    console.log("Instructors data keys:", Object.keys(data));
+    if (data.data) {
+      console.log("Instructors data.data:", data.data);
+      console.log("Instructors data.data type:", typeof data.data);
+      console.log("Instructors data.data is array:", Array.isArray(data.data));
+      if (Array.isArray(data.data)) {
+        console.log("Instructors count:", data.data.length);
+        console.log("First instructor:", data.data[0]);
+      }
+    }
+    console.log("=========================");
+
+    return data;
+  } catch (error) {
+    console.error("Error calling backend API:", error);
+    throw error;
+  }
 }
