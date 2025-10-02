@@ -79,9 +79,7 @@ function InstructorRow({
   index: number;
 }) {
   const fullName = `${instructor.firstName} ${instructor.lastName}`;
-  const location = `${instructor.nationality} ${
-    instructor.profile.country 
-  }`;
+  const location = instructor.profile.country || 'Unknown';
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",

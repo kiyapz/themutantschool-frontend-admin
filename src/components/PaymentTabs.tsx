@@ -28,7 +28,7 @@ function StatusTag({ status }: StatusTagProps) {
     switch (status) {
       case "pending":
         return "bg-[#2B2B2B] text-[#757575] ";
-      case "Approved":
+      case "succeeded":
         return "bg-[#193024] text-[#38FF63] ";
       case "failed":
       case "refunded":

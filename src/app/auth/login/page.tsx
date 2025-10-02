@@ -19,14 +19,7 @@ export default function LoginPage() {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 bg-[var(--bg-primary)] relative">
         {/* Background Particles */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 left-20 w-2 h-2 bg-purple-400 rounded-full"></div>
-          <div className="absolute top-40 right-32 w-1 h-1 bg-purple-300 rounded-full"></div>
-          <div className="absolute bottom-40 left-32 w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-          <div className="absolute bottom-20 right-20 w-1 h-1 bg-purple-400 rounded-full"></div>
-          <div className="absolute top-60 left-40 w-1 h-1 bg-purple-300 rounded-full"></div>
-          <div className="absolute bottom-60 right-40 w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-        </div>
+        
 
         <div
           className="relative z-10 flex items-center justify-center min-h-screen"

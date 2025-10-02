@@ -65,7 +65,7 @@ function StudentRow({
   isDropdownOpen: boolean;
 }) {
   const fullName = `${student.firstName} ${student.lastName}`;
-  const location = `${student.nationality} `;
+  const location = student.profile.country || 'Unknown';
 
   return (
     <tr
