@@ -65,7 +65,7 @@ function StudentRow({
   isDropdownOpen: boolean;
 }) {
   const fullName = `${student.firstName} ${student.lastName}`;
-  const location = student.profile.country || 'Unknown';
+  const location = student.profile.country || "Unknown";
 
   return (
     <tr
@@ -407,7 +407,6 @@ export default function StudentsList() {
         >
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[#7343B3] border-t-transparent rounded-full animate-spin mx-auto"></div>
-           
           </div>
         </div>
       </div>
@@ -529,7 +528,7 @@ export default function StudentsList() {
           <select
             value={sortBy}
             onChange={handleSortChange}
-            className={`rounded-lg transition-colors outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+            className={`hidden md:block rounded-lg transition-colors outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
               statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
             }`}
             style={{
@@ -627,9 +626,9 @@ export default function StudentsList() {
           padding: "var(--spacing-lg)",
         }}
       >
-        <div className="text-[15px] text-[var(--text-secondary)] italic">
+        <div className="text-[8px] sm:text-[15px] text-[var(--text-secondary)] italic">
           Showing results from 1- {filteredStudents.length} of {students.length}
-          Entries 
+          Entries
         </div>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
           <button

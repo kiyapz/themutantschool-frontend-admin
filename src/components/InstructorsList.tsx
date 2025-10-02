@@ -79,7 +79,7 @@ function InstructorRow({
   index: number;
 }) {
   const fullName = `${instructor.firstName} ${instructor.lastName}`;
-  const location = instructor.profile.country || 'Unknown';
+  const location = instructor.profile.country || "Unknown";
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -90,7 +90,7 @@ function InstructorRow({
   return (
     <tr
       // style={{ borderBottom: "1px solid var(--border-primary)" }}
-      style={{ marginBottom: "20px",}}
+      style={{ marginBottom: "20px" }}
       className="bg-[#0C0C0C] cursor-pointer transition-colors"
     >
       <td
@@ -242,7 +242,7 @@ export default function InstructorsList() {
         // The array is in response.data.data.data
         console.log("=== DEBUGGING DATA ACCESS ===");
         console.log("response.data:", response.data);
-       
+
         console.log(
           "response.data.data.data type:",
           typeof response.data?.data?.data
@@ -331,12 +331,9 @@ export default function InstructorsList() {
             })
           );
 
-         
-         
           setInstructors(transformedInstructors);
           console.log("=== INSTRUCTORS FETCH COMPLETE ===");
         } else {
-          
           console.error("Full response structure:", response.data);
           setError("Invalid data format received from server");
         }
@@ -374,7 +371,6 @@ export default function InstructorsList() {
         >
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[#7343B3] border-t-transparent rounded-full animate-spin mx-auto"></div>
-           
           </div>
         </div>
       </div>
@@ -406,7 +402,7 @@ export default function InstructorsList() {
     <div className=" rounded-lg flex flex-col gap-8">
       {/* Header */}
       <div
-        className="flex items-center justify-between bg-[#0C0C0C] rounded-[20px]"
+        className="flex  items-center justify-between bg-[#0C0C0C] rounded-[20px]"
         style={{
           padding: "var(--spacing-lg)",
           // marginBottom: "var(--spacing-lg)",
@@ -451,7 +447,7 @@ export default function InstructorsList() {
           <select
             value={sortBy}
             onChange={handleSortChange}
-            className={`rounded-lg transition-colors outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+            className={`hidden md:block  rounded-lg transition-colors outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
               statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
             }`}
             style={{
@@ -547,7 +543,7 @@ export default function InstructorsList() {
           // borderTop: "1px solid var(--border-primary)",
         }}
       >
-        <div className="text-[15px] italic text-[var(--text-secondary)]">
+        <div className="text-[8px] sm:text-[15px] italic text-[var(--text-secondary)]">
           instructors Showing results from 1- {filteredInstructors.length} of{" "}
           {instructors.length} Entries
         </div>

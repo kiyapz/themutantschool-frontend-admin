@@ -532,7 +532,7 @@ export default function AffiliatesList() {
             Filter
           </button>
           <select
-            className={`rounded-lg transition-colors bg-[#0C0C0C] outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium `}
+            className={`hidden md:block rounded-lg transition-colors bg-[#0C0C0C] outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium `}
             style={{
               padding: "var(--spacing-sm) var(--spacing-md)",
               // border: "1px solid var(--border-primary)",
@@ -634,7 +634,7 @@ export default function AffiliatesList() {
          
         }}
       >
-        <div className="text-[15px] italic text-[var(--text-secondary)]">
+        <div className="text-[8px] sm:text-[15px] italic text-[var(--text-secondary)]">
           Showing results from 1-{affiliates.length} of {affiliates.length} Entries 
          
         </div>

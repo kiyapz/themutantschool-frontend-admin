@@ -63,11 +63,11 @@ function CategoryTag({ category }: CategoryTagProps) {
     switch (category?.toLowerCase()) {
       case "coding":
       case "programming":
-      case "technology":
+      
         return "bg-[#30192E] text-[#840B94]";
       case "design":
         return "bg-[#302A19] text-[#FF9F38]";
-      case "growth":
+      case "Technology":
       case "education":
         return "bg-[#19302B] text-[#38FFBD]";
       default:
@@ -874,7 +874,7 @@ export default function MissionsList() {
           <select
             value={sortBy}
             onChange={handleSortChange}
-            className="rounded-lg transition-colors outline-none bg-[#0C0C0C] shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium "
+            className="hidden md:block rounded-lg transition-colors outline-none bg-[#0C0C0C] shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium "
             style={{
               padding: "var(--spacing-sm) var(--spacing-md)",
             }}
@@ -1002,7 +1002,7 @@ export default function MissionsList() {
           borderTop: "1px solid var(--border-primary)",
         }}
       >
-        <div className="text-[15px] italic text-[var(--text-secondary)]">
+        <div className="text-[8px] sm:text-[15px] italic text-[var(--text-secondary)]">
           Showing results from 1-{filteredMissions.length} of {totalMissions}{" "}
           Entries
         </div>

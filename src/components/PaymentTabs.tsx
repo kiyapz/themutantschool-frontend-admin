@@ -395,15 +395,14 @@ export default function PaymentTabs() {
                 </div>
 
                 {/* Transaction Count Display */}
-                <div className="text-sm text-[var(--text-secondary)]">
+                <div className="hidden md:block text-sm text-[var(--text-secondary)]">
                   Showing {getCurrentTransactions().length} transactions
                 </div>
 
                 <select
-                  className="bg-[#0C0C0C] outline-none text-[var(--text-primary)] rounded-lg focus:outline-none"
+                  className="hidden md:block bg-[#0C0C0C] outline-none text-[var(--text-primary)] rounded-lg focus:outline-none"
                   style={{
                     padding: "var(--spacing-sm) var(--spacing-md)",
-                   
                   }}
                 >
                   <option>Sort By: Newest to Oldest</option>
