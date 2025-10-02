@@ -43,7 +43,7 @@ function InboxItemComponent({ item }: InboxItemProps) {
 
   return (
     <div
-      className="bg-[var(--bg-card)] rounded-lg transition-colors"
+      className="bg-[#181818] rounded-lg transition-colors"
       style={{ padding: "var(--spacing-md)" }}
     >
       <div className="flex items-start" style={{ gap: "var(--spacing-sm)" }}>
@@ -155,7 +155,7 @@ export default function Inbox() {
   ];
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-lg">
+    <div className="bg-[#0C0C0C] rounded-lg">
       <div style={{ padding: "var(--spacing-lg)" }}>
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">
           Inbox

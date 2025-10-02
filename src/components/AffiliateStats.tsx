@@ -12,11 +12,11 @@ interface StatCardProps {
 function StatCard({ title, value, loading = false }: StatCardProps) {
   return (
     <div
-      className="bg-[var(--bg-tertiary)] rounded-lg"
+      className="bg-[#0C0C0C] rounded-lg"
       style={{ padding: "var(--spacing-lg)" }}
     >
       <div>
-        <h3 className="text-sm font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+        <h3 className="text-sm font-medium text-[#898989] uppercase tracking-wider">
           {title}
         </h3>
         <p

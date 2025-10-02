@@ -57,7 +57,7 @@ interface AffiliateCardProps {
 function AffiliateCard({ affiliate }: AffiliateCardProps) {
   return (
     <div
-      className="bg-[var(--bg-card)] rounded-lg transition-colors"
+      className="bg-[#181818] rounded-lg transition-colors"
       style={{ padding: "var(--spacing-md)" }}
     >
       <div className="flex items-center" style={{ gap: "var(--spacing-md)" }}>
@@ -81,22 +81,20 @@ function AffiliateCard({ affiliate }: AffiliateCardProps) {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-[var(--text-primary)] truncate">
-            {affiliate.firstName} {affiliate.lastName}
-          </h3>
-          <p className="text-sm text-[var(--text-secondary)] truncate">
-            @{affiliate.username}
-          </p>
-          <div className="flex flex-wrap gap-2 mt-1">
-            <span className="text-sm font-medium text-[var(--accent-green)]">
-              ${affiliate.affiliateEarnings} Earnings
+          <div className="flex items-center justify-between w-full gap-2">
+           
+            <div className=" mt-1">
+              <h3 className="font-semibold text-[var(--text-primary)] truncate">
+                {affiliate.firstName} {affiliate.lastName}
+              </h3>
+              <p className="text-sm font-medium text-[var(--accent-green)]">
+                ${affiliate.affiliateEarnings} Earnings
+              </p>
+              
+            </div>
+            <span className="text-sm font-medium text-[#9B5FDF]">
+              {affiliate.completedMissions?.length} Enrolments
             </span>
-          <span className="text-sm font-medium text-[var(--accent-purple)]">
-              Level {affiliate.level}
-            </span>
-            <span className="text-sm font-medium text-[var(--accent-yellow)]">
-              {affiliate.completedMissions?.length || 0} Missions
-          </span>
           </div>
         </div>
       </div>
@@ -120,14 +118,6 @@ export default function TopAffiliates() {
         console.log("=== TOP AFFILIATES RESPONSE ===");
         console.log("Response:", response);
         console.log("Affiliates data:", response.data);
-        console.log("=============================");
-
-        // Handle the correct data structure from your backend
-        console.log("Response structure:", response);
-        console.log("Response.data:", response.data);
-        console.log("Response.data.data:", response.data?.data);
-        console.log("Type of response.data.data:", typeof response.data?.data);
-        console.log("Is array:", Array.isArray(response.data?.data));
 
         // Access the nested data structure: response.data.data
         const affiliatesData = Array.isArray(response.data?.data)
@@ -148,7 +138,7 @@ export default function TopAffiliates() {
   }, []);
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-lg">
+    <div className="bg-[#0C0C0C] rounded-lg">
       <div style={{ padding: "var(--spacing-lg)" }}>
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">
           Top Performing Affiliates

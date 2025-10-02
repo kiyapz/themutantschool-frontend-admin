@@ -40,9 +40,7 @@ function StatusButton({ status }: StatusButtonProps) {
   return (
     <button
       className={`rounded-full text-xs font-medium transition-colors ${
-        isActive
-          ? "bg-[var(--accent-blue)] text-white"
-          : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
+        isActive ? "bg-[#191B30] text-[#387EFF]" : "bg-[#2B2B2B] text-[#757575]"
       }`}
       style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
     >
@@ -67,16 +65,17 @@ function StudentRow({
   isDropdownOpen: boolean;
 }) {
   const fullName = `${student.firstName} ${student.lastName}`;
-  const location = `${student.profile.city}, ${student.profile.country}`;
+  const location = `${student.nationality} `;
 
   return (
     <tr
       onClick={onClick}
       style={{
-        borderBottom: "1px solid var(--border-primary)",
+        // borderBottom: "1px solid var(--border-primary)",
         cursor: "pointer",
+        marginBottom: "20px",
       }}
-      className="hover:bg-[var(--bg-tertiary)] transition-colors"
+      className="bg-[#0C0C0C] cursor-pointer transition-colors"
     >
       <td
         className="text-sm text-[var(--text-secondary)]"
@@ -96,32 +95,30 @@ function StudentRow({
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center text-white font-bold text-xs">
               {student.firstName.charAt(0)}
               {student.lastName.charAt(0)}
-          </div>
+            </div>
           )}
           <div>
             <div className="text-sm font-medium text-[var(--text-primary)]">
               {fullName}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              {location}
-            </div>
+            <div className="text-xs text-[#5F5F5F]">{location}</div>
           </div>
         </div>
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {student.enrollment.enrolledMissions}
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {student.completedMissions?.length || 0}
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {student.enrollment.certificates}
@@ -139,8 +136,8 @@ function StudentRow({
             className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             title="More Actions"
           >
-          <MoreHorizontal size={16} />
-        </button>
+            <MoreHorizontal size={16} />
+          </button>
 
           {isDropdownOpen && (
             <div
@@ -388,16 +385,13 @@ export default function StudentsList() {
 
   if (!mounted) {
     return (
-      <div className="bg-[var(--bg-card)] rounded-lg">
+      <div className=" ">
         <div
           className="flex items-center justify-center"
           style={{ padding: "var(--spacing-2xl)" }}
         >
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-[var(--accent-purple)] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-[var(--text-secondary)] mt-4">
-              Loading students...
-            </p>
+            <div className="w-8 h-8 border-4 border-[#7343B3] border-t-transparent rounded-full animate-spin mx-auto"></div>
           </div>
         </div>
       </div>
@@ -406,16 +400,14 @@ export default function StudentsList() {
 
   if (loading) {
     return (
-      <div className="bg-[var(--bg-card)] rounded-lg">
+      <div className=" rounded-lg">
         <div
           className="flex items-center justify-center"
           style={{ padding: "var(--spacing-2xl)" }}
         >
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-[var(--accent-purple)] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-[var(--text-secondary)] mt-4">
-              Loading students...
-            </p>
+            <div className="w-8 h-8 border-4 border-[#7343B3] border-t-transparent rounded-full animate-spin mx-auto"></div>
+           
           </div>
         </div>
       </div>
@@ -481,7 +473,7 @@ export default function StudentsList() {
                 };
                 fetchStudents();
               }}
-              className="bg-[var(--accent-purple)] text-white px-4 py-2 rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
+              className="bg-[#7343B3] text-white px-4 py-2 rounded-lg hover:bg-[#8b5cf6] transition-colors"
             >
               Retry
             </button>
@@ -492,10 +484,10 @@ export default function StudentsList() {
   }
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-lg">
+    <div className=" rounded-lg">
       {/* Header */}
       <div
-        className="flex items-center justify-between"
+        className="flex items-center justify-between bg-[#0C0C0C] rounded-[20px]"
         style={{ padding: "var(--spacing-lg)" }}
       >
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">
@@ -508,10 +500,8 @@ export default function StudentsList() {
           >
             <button
               onClick={() => handleStatusFilter("all")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "all"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+                statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -519,10 +509,8 @@ export default function StudentsList() {
             </button>
             <button
               onClick={() => handleStatusFilter("active")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "active"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+                statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -530,10 +518,8 @@ export default function StudentsList() {
             </button>
             <button
               onClick={() => handleStatusFilter("inactive")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "inactive"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+                statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -543,7 +529,9 @@ export default function StudentsList() {
           <select
             value={sortBy}
             onChange={handleSortChange}
-            className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg focus:outline-none"
+            className={`rounded-lg transition-colors outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+              statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
+            }`}
             style={{
               padding: "var(--spacing-sm) var(--spacing-md)",
               border: "1px solid var(--border-primary)",
@@ -571,7 +559,7 @@ export default function StudentsList() {
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%" }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid var(--border-primary)" }}>
+            <tr style={{ marginBottom: "10px" }}>
               <th
                 className="text-left text-sm font-medium text-[var(--text-secondary)]"
                 style={{ padding: "var(--spacing-md)" }}
@@ -637,21 +625,21 @@ export default function StudentsList() {
         className="flex items-center justify-between"
         style={{
           padding: "var(--spacing-lg)",
-          borderTop: "1px solid var(--border-primary)",
         }}
       >
-        <div className="text-sm text-[var(--text-secondary)]">
-          Showing {filteredStudents.length} of {students.length} students
+        <div className="text-[15px] text-[var(--text-secondary)] italic">
+          Showing results from 1- {filteredStudents.length} of {students.length}
+          Entries 
         </div>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
           <button
-            className="text-sm text-[var(--text-muted)] bg-[var(--bg-tertiary)] rounded-lg cursor-not-allowed"
+            className="text-sm text-[#535353] bg-[#1D1D1D] rounded-lg cursor-not-allowed"
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Previous
           </button>
           <button
-            className="text-sm text-white bg-[var(--accent-purple)] rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
+            className="text-sm text-white bg-[#840B94] cursor-pointer rounded-lg  transition-colors"
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Next &gt;

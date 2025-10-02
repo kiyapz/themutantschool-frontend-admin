@@ -44,7 +44,7 @@ interface MissionCardProps {
 function MissionCard({ mission }: MissionCardProps) {
   return (
     <div
-      className="bg-[#181818] rounded-lg transition-colors"
+      className="bg-[var(--bg-secondary)] rounded-lg transition-colors"
       style={{ padding: "var(--spacing-md)" }}
     >
       <div className="flex items-center" style={{ gap: "var(--spacing-md)" }}>
@@ -62,37 +62,27 @@ function MissionCard({ mission }: MissionCardProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-[var(--text-primary)] truncate">
-            {mission.title}
-          </h3>
-          <p
-            className="text-sm text-[var(--text-secondary)]"
-            style={{ marginTop: "var(--spacing-xs)" }}
-          >
-            {mission.category} • {mission.skillLevel}
-          </p>
+        <div className="flex-1 min-w-0 flex items-center justify-between w-full gap-2">
+          <div>
+            <h3 className="font-semibold text-[var(--text-primary)] truncate">
+              {mission.title}
+            </h3>
+            <p
+              className="text-sm text-[var(--text-secondary)]"
+              style={{ marginTop: "var(--spacing-xs)" }}
+            >
+              {mission.category} • {mission.skillLevel}
+            </p>
+          </div>
           <div
-            className="flex flex-wrap"
+            className="flex flex-col gap-2"
             style={{ gap: "var(--spacing-sm)", marginTop: "var(--spacing-sm)" }}
           >
-            <span className="text-sm font-medium text-[var(--accent-yellow)]">
-              {mission.estimatedDuration}
-            </span>
-            <span className="text-sm font-medium text-[var(--accent-green)]">
+            <span className="text-sm font-medium text-[#DFCA5F]">
               {mission.isFree ? "Free" : `$${mission.price}`}
             </span>
-            <span className="text-sm font-medium text-[var(--accent-purple)]">
-              ⭐ {mission.averageRating || "No rating"}
-            </span>
-            <span
-              className={`text-sm font-medium px-2 py-1 rounded ${
-                mission.status === "published"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
-            >
-              {mission.status}
+            <span className="text-sm font-medium text-[#DFCA5F]">
+              ⭐ {mission.averageRating}
             </span>
           </div>
         </div>

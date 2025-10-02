@@ -36,7 +36,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     return <div>{children}</div>;
   }
 
-  // Removed authentication check - all pages are accessible
+ 
 
   return (
     <div className="h-screen bg-[var(--bg-primary)] flex w-screen overflow-hidden">

@@ -12,16 +12,16 @@ interface StatCardProps {
 function StatCard({ title, value, loading = false }: StatCardProps) {
   return (
     <div
-      className="bg-[var(--bg-tertiary)] rounded-lg"
+      className="bg-[#0C0C0C] rounded-lg"
       style={{ padding: "var(--spacing-lg)" }}
     >
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+          <h3 className="text-sm font-medium text-[#696969] uppercase tracking-wider">
             {title}
           </h3>
           <p
-            className="text-3xl font-bold text-[var(--text-primary)]"
+            className="text-3xl font-bold text-[#FFFFFF]"
             style={{ marginTop: "var(--spacing-sm)" }}
           >
             {loading ? "..." : value}
@@ -53,7 +53,33 @@ export default function InstructorStats() {
       const response = await adminApi.get("/users/instructors");
       console.log("Instructor Stats API Response:", response.data);
 
-      const instructors = response.data?.data?.data; // Correctly access nested data
+      const instructorsData = response.data?.data?.data; // Access nested data (3 levels deep)
+
+      // Check if data is nested in a different structure
+      let instructors = instructorsData;
+      if (
+        !Array.isArray(instructorsData) &&
+        instructorsData &&
+        typeof instructorsData === "object"
+      ) {
+        // Try to find the array in the object
+        if (instructorsData.data && Array.isArray(instructorsData.data)) {
+          instructors = instructorsData.data;
+          console.log(
+            "Found instructors array in instructorsData.data:",
+            instructors
+          );
+        } else if (
+          instructorsData.instructors &&
+          Array.isArray(instructorsData.instructors)
+        ) {
+          instructors = instructorsData.instructors;
+          console.log(
+            "Found instructors array in instructorsData.instructors:",
+            instructors
+          );
+        }
+      }
 
       if (instructors && Array.isArray(instructors)) {
         console.log("Instructors for stats:", instructors);

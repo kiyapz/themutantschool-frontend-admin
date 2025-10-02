@@ -27,14 +27,14 @@ function StatusTag({ status }: StatusTagProps) {
   const getStatusColor = () => {
     switch (status) {
       case "pending":
-        return "bg-yellow-200 text-yellow-800";
-      case "succeeded":
-        return "bg-[var(--accent-green)] text-white";
+        return "bg-[#2B2B2B] text-[#757575] ";
+      case "Approved":
+        return "bg-[#193024] text-[#38FF63] ";
       case "failed":
       case "refunded":
-        return "bg-[var(--accent-red)] text-white";
+        return "bg-[#193024] text-[#38FF63]";
       default:
-        return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]";
+        return "bg-[#301B19] text-[#FF6338]";
     }
   };
 
@@ -349,7 +349,7 @@ export default function PaymentTabs() {
 
   return (
     <div>
-      <div className="bg-[var(--bg-card)] rounded-lg">
+      <div className="">
         {/* Tabs */}
         <div
           className="flex"
@@ -359,8 +359,8 @@ export default function PaymentTabs() {
             onClick={() => setActiveTab("Payouts")}
             className={`text-sm font-medium transition-colors ${
               activeTab === "Payouts"
-                ? "text-[var(--accent-purple)] bg-[var(--bg-tertiary)]"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                ? "text-[#A333CF] border-b-2 border-[#A333CF]"
+                : "text-[#A5A5A5] hover:text-[#A5A5A5]"
             }`}
             style={{ padding: "var(--spacing-md) var(--spacing-lg)" }}
           >
@@ -370,22 +370,22 @@ export default function PaymentTabs() {
         </div>
 
         {/* Tab Content */}
-        <div style={{ padding: "var(--spacing-lg)" }}>
+        <div style={{ padding: "var(--spacing-lg)" }} className="">
           {activeTab === "Payouts" && (
             <>
               <div
                 className="flex items-center justify-between"
                 style={{ marginBottom: "var(--spacing-lg)" }}
               >
-                <div className="flex items-center bg-[var(--bg-tertiary)] rounded-lg p-1">
+                <div className="flex items-center bg-[#0C0C0C] rounded-lg p-1">
                   {["Affiliates", "Instructors", "Platform"].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveSubTab(tab)}
-                      className={`text-sm font-medium transition-colors rounded-md ${
+                      className={`text-sm font-medium cursor-pointer transition-colors rounded-md ${
                         activeSubTab === tab
-                          ? "text-white bg-[var(--accent-purple)]"
-                          : "text-[var(--text-secondary)] hover:bg-[var(--border-secondary)]"
+                          ? "text-white bg-[#A333CF]"
+                          : "text-[#A5A5A5]  hover:opacity-50"
                       }`}
                       style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
                     >
@@ -400,10 +400,10 @@ export default function PaymentTabs() {
                 </div>
 
                 <select
-                  className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg focus:outline-none"
+                  className="bg-[#0C0C0C] outline-none text-[var(--text-primary)] rounded-lg focus:outline-none"
                   style={{
                     padding: "var(--spacing-sm) var(--spacing-md)",
-                    border: "1px solid var(--border-primary)",
+                   
                   }}
                 >
                   <option>Sort By: Newest to Oldest</option>

@@ -79,10 +79,9 @@ function AffiliateRow({
     <tr
       onClick={onClick}
       style={{
-        borderBottom: "1px solid var(--border-primary)",
         cursor: "pointer",
       }}
-      className="hover:bg-[var(--bg-tertiary)] transition-colors"
+      className="bg-[#0C0C0C] cursor-pointer  transition-colors"
     >
       <td
         className="text-sm text-[var(--text-secondary)]"
@@ -104,30 +103,25 @@ function AffiliateRow({
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-white text-xs font-medium">
+            <div className="w-8 h-8 rounded-full bg-[#7343B3] flex items-center justify-center text-white text-xs font-medium">
               {affiliate.firstName.charAt(0)}
               {affiliate.lastName.charAt(0)}
             </div>
           )}
-        <div>
-          <div className="font-medium">{affiliate.name}</div>
-          <div className="text-xs text-[var(--text-secondary)]">
-              {affiliate.email}
-            </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              Balance: ${affiliate.earningsBalance.toFixed(2)}
-            </div>
+          <div>
+            <div className="font-medium">{affiliate.name}</div>
+            <div className="text-xs text-[#5F5F5F]">{affiliate.email}</div>
           </div>
         </div>
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {affiliate.referrals}
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {affiliate.enrolments}
@@ -137,7 +131,7 @@ function AffiliateRow({
         style={{ padding: "var(--spacing-md)" }}
       >
         <div>{affiliate.commissions}</div>
-        <div className="text-xs text-[var(--text-secondary)]">
+        <div className="text-xs text-[#5F5F5F]">
           Cashout: {affiliate.cashout}
         </div>
       </td>
@@ -154,12 +148,12 @@ function AffiliateRow({
             className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             title="More Actions"
           >
-          <MoreHorizontal size={20} />
-        </button>
+            <MoreHorizontal size={20} />
+          </button>
 
           {isDropdownOpen && (
             <div
-              className="absolute right-0 top-8 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg shadow-lg z-10"
+              className="absolute right-0 top-8  border border-[var(--border-primary)] rounded-lg shadow-lg z-10"
               style={{ minWidth: "160px" }}
               data-dropdown
             >
@@ -348,17 +342,6 @@ export default function AffiliatesList() {
         const response = await adminApi.get("/users/affiliates");
         console.log("=== API CALL SUCCESSFUL ===");
         console.log("Response status:", response.status);
-        console.log("Response status text:", response.statusText);
-        console.log("Response headers:", response.headers);
-        console.log("Response config:", response.config);
-        console.log("=== COMPLETE AFFILIATES API RESPONSE ===");
-        console.log("Affiliates API Response:", response.data);
-        console.log("Response data type:", typeof response.data);
-        console.log("Response data keys:", Object.keys(response.data));
-        console.log("Response success:", response.data.success);
-        console.log("Response message:", response.data.message);
-        console.log("Response status:", response.data.status);
-        console.log("Response pagination:", response.data.pagination);
 
         if (response.data.success) {
           // The array is in response.data.data.data
@@ -437,10 +420,7 @@ export default function AffiliatesList() {
             console.log("=== AFFILIATES FETCH COMPLETE ===");
           } else {
             console.error("❌ ERROR: Affiliates data is not an array!");
-            console.error("Affiliates data:", affiliatesData);
-            console.error("Data type:", typeof affiliatesData);
-            console.error("Is array:", Array.isArray(affiliatesData));
-            console.error("Full response structure:", response.data);
+
             setError("Invalid data format received from server");
           }
         } else {
@@ -448,23 +428,16 @@ export default function AffiliatesList() {
           setError("Failed to fetch affiliates");
         }
       } catch (err: unknown) {
-        console.error("=== AFFILIATES FETCH ERROR ===");
-        console.error("Error type:", typeof err);
-        console.error("Error object:", err);
+        console.log("Error object:", err);
 
         if (err instanceof Error) {
-          console.error("Error message:", err.message);
-          console.error("Error stack:", err.stack);
+          console.log("Error message:", err.message);
         }
 
         if (err && typeof err === "object" && "response" in err) {
           const axiosError = err as {
             response?: { status?: number; data?: unknown; headers?: unknown };
           };
-          console.error("Axios error response:", axiosError.response);
-          console.error("Axios error status:", axiosError.response?.status);
-          console.error("Axios error data:", axiosError.response?.data);
-          console.error("Axios error headers:", axiosError.response?.headers);
         }
 
         if (err && typeof err === "object" && "request" in err) {
@@ -490,16 +463,14 @@ export default function AffiliatesList() {
 
   if (!mounted) {
     return (
-      <div className="bg-[var(--bg-card)] rounded-lg">
+      <div className=" rounded-lg">
         <div
           className="flex items-center justify-center"
           style={{ padding: "var(--spacing-2xl)" }}
         >
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-[var(--accent-purple)] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-[var(--text-secondary)] mt-4">
-              Loading affiliates...
-            </p>
+            <div className="w-8 h-8 border-4 border-[#7343B3] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            
           </div>
         </div>
       </div>
@@ -508,16 +479,14 @@ export default function AffiliatesList() {
 
   if (loading) {
     return (
-      <div className="bg-[var(--bg-card)] rounded-lg">
+      <div className=" ">
         <div
           className="flex items-center justify-center"
           style={{ padding: "var(--spacing-2xl)" }}
         >
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-[var(--accent-purple)] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-[var(--text-secondary)] mt-4">
-              Loading affiliates...
-            </p>
+            <div className="w-8 h-8 border-4 border-[#7343B3] border-t-transparent rounded-full animate-spin mx-auto"></div>
+           
           </div>
         </div>
       </div>
@@ -535,7 +504,8 @@ export default function AffiliatesList() {
             <p className="text-[var(--text-error)] mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-[var(--accent-purple)] text-white px-4 py-2 rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
+              style={{padding: "var(--spacing-sm) var(--spacing-md)"}}
+              className="bg-[#7343B3] text-white px-4 py-2 rounded-lg hover:bg-[#8b5cf6] transition-colors"
             >
               Retry
             </button>
@@ -546,9 +516,9 @@ export default function AffiliatesList() {
   }
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-lg">
+    <div className="">
       <div
-        className="flex items-center justify-between"
+        className="flex items-center justify-between bg-[#0C0C0C] rounded-[20px]"
         style={{ padding: "var(--spacing-lg)" }}
       >
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">
@@ -556,16 +526,16 @@ export default function AffiliatesList() {
         </h2>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
           <button
-            className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--border-secondary)] transition-colors"
+            className="rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium"
             style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
           >
             Filter
           </button>
           <select
-            className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg focus:outline-none"
+            className={`rounded-lg transition-colors bg-[#0C0C0C] outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium `}
             style={{
               padding: "var(--spacing-sm) var(--spacing-md)",
-              border: "1px solid var(--border-primary)",
+              // border: "1px solid var(--border-primary)",
             }}
           >
             <option>Sort By: Oldest to Newest</option>
@@ -590,7 +560,7 @@ export default function AffiliatesList() {
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%" }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid var(--border-primary)" }}>
+            <tr >
               <th
                 className="text-left text-sm font-medium text-[var(--text-secondary)]"
                 style={{ padding: "var(--spacing-md)" }}
@@ -661,21 +631,22 @@ export default function AffiliatesList() {
         className="flex items-center justify-between"
         style={{
           padding: "var(--spacing-lg)",
-          borderTop: "1px solid var(--border-primary)",
+         
         }}
       >
-        <div className="text-sm text-[var(--text-secondary)]">
-          Showing {affiliates.length} of {affiliates.length} entries
+        <div className="text-[15px] italic text-[var(--text-secondary)]">
+          Showing results from 1-{affiliates.length} of {affiliates.length} Entries 
+         
         </div>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
           <button
-            className="text-sm text-[var(--text-muted)] bg-[var(--bg-tertiary)] rounded-lg cursor-not-allowed"
+            className="text-sm text-[#535353] bg-[#1D1D1D] rounded-lg cursor-not-allowed"
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Previous
           </button>
           <button
-            className="text-sm text-white bg-[var(--accent-purple)] rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
+            className="text-sm text-white bg-[#840B94] rounded-lg hover:bg-[#8b5cf6] transition-colors"
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Next &gt;

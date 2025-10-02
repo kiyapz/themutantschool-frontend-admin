@@ -64,14 +64,14 @@ function CategoryTag({ category }: CategoryTagProps) {
       case "coding":
       case "programming":
       case "technology":
-        return "bg-[var(--accent-purple)] text-white";
+        return "bg-[#30192E] text-[#840B94]";
       case "design":
-        return "bg-orange-500 text-white";
+        return "bg-[#302A19] text-[#FF9F38]";
       case "growth":
       case "education":
-        return "bg-green-500 text-white";
+        return "bg-[#19302B] text-[#38FFBD]";
       default:
-        return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]";
+        return "bg-[#19302B] text-[#38FFBD]";
     }
   };
 
@@ -93,7 +93,7 @@ interface StatusTagProps {
 function StatusTag({ status, isPublished }: StatusTagProps) {
   const getStatusColor = () => {
     if (isPublished) {
-      return "bg-[var(--accent-blue)] text-white";
+      return "bg-[#191B30] text-[#387EFF]";
     }
     if (status && status.toLowerCase() === "published") {
       return "bg-[var(--accent-blue)] text-white";
@@ -160,8 +160,8 @@ function MissionRow({
 
   return (
     <tr
-      style={{ borderBottom: "1px solid var(--border-primary)" }}
-      className="hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer"
+      
+      className="hover:opacity-80 transition-colors cursor-pointer"
       onClick={() => onMissionClick(mission)}
     >
       <td
@@ -176,7 +176,7 @@ function MissionRow({
             {mission.title}
           </div>
           <div
-            className="text-xs text-[var(--text-secondary)] cursor-pointer hover:text-[var(--accent-purple)]"
+            className="text-xs text-[#5F5F5F] cursor-pointer hover:text-[#7343B3]"
             onClick={(e) => {
               e.stopPropagation();
               onInstructorClick(mission.instructor);
@@ -193,19 +193,19 @@ function MissionRow({
         <CategoryTag category={mission.category} />
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {mission.levels?.length || 0}
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {mission.averageRating?.toFixed(1) || "N/A"}
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {mission.reviews?.length || 0}
@@ -215,7 +215,7 @@ function MissionRow({
           <div className="text-sm font-medium text-[var(--text-primary)]">
             {formatPrice(mission.price, mission.isFree)}
           </div>
-          <div className="text-xs text-[var(--text-secondary)]">
+          <div className="text-xs text-[#5F5F5F]">
             {getPriceType(mission.isFree)}
           </div>
         </div>
@@ -233,8 +233,8 @@ function MissionRow({
             className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             title="More Actions"
           >
-          <MoreHorizontal size={16} />
-        </button>
+            <MoreHorizontal size={16} />
+          </button>
 
           {isDropdownOpen && (
             <div
@@ -685,16 +685,13 @@ export default function MissionsList() {
 
   if (!mounted) {
     return (
-      <div className="bg-[var(--bg-card)] rounded-lg">
+      <div className=" rounded-lg">
         <div
           className="flex items-center justify-center"
           style={{ padding: "var(--spacing-2xl)" }}
         >
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[var(--accent-purple)] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-[var(--text-secondary)] mt-4">
-              Loading missions...
-            </p>
           </div>
         </div>
       </div>
@@ -703,16 +700,13 @@ export default function MissionsList() {
 
   if (loading) {
     return (
-      <div className="bg-[var(--bg-card)] rounded-lg">
+      <div className=" rounded-lg">
         <div
           className="flex items-center justify-center"
           style={{ padding: "var(--spacing-2xl)" }}
         >
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[var(--accent-purple)] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-[var(--text-secondary)] mt-4">
-              Loading missions...
-            </p>
           </div>
         </div>
       </div>
@@ -824,7 +818,7 @@ export default function MissionsList() {
 
                 fetchMissions();
               }}
-              className="bg-[var(--accent-purple)] text-white px-4 py-2 rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
+              className="bg-[#7343B3] text-white px-4 py-2 rounded-lg hover:bg-[#8b5cf6] transition-colors"
             >
               Retry
             </button>
@@ -835,10 +829,10 @@ export default function MissionsList() {
   }
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-lg">
+    <div className=" rounded-lg">
       {/* Header */}
       <div
-        className="flex items-center justify-between"
+        className="flex items-center justify-between bg-[#0C0C0C] rounded-[20px]"
         style={{ padding: "var(--spacing-lg)" }}
       >
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">
@@ -851,10 +845,8 @@ export default function MissionsList() {
           >
             <button
               onClick={() => handleStatusFilter("all")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "all"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium ${
+                statusFilter === "all" ? "bg-[#161616]" : "bg-[#161616] "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -862,10 +854,8 @@ export default function MissionsList() {
             </button>
             <button
               onClick={() => handleStatusFilter("Published")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "Published"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium ${
+                statusFilter === "Published" ? "bg-[#161616]" : "bg-[#161616] "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -873,10 +863,8 @@ export default function MissionsList() {
             </button>
             <button
               onClick={() => handleStatusFilter("Draft")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "Draft"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium ${
+                statusFilter === "Draft" ? "bg-[#161616]" : "bg-[#161616] "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -886,10 +874,9 @@ export default function MissionsList() {
           <select
             value={sortBy}
             onChange={handleSortChange}
-            className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg focus:outline-none"
+            className="rounded-lg transition-colors outline-none bg-[#0C0C0C] shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium "
             style={{
               padding: "var(--spacing-sm) var(--spacing-md)",
-              border: "1px solid var(--border-primary)",
             }}
           >
             <option value="oldest-to-newest">Sort By: Oldest to Newest</option>
@@ -1015,18 +1002,19 @@ export default function MissionsList() {
           borderTop: "1px solid var(--border-primary)",
         }}
       >
-        <div className="text-sm text-[var(--text-secondary)]">
-          Showing {filteredMissions.length} of {totalMissions} missions
+        <div className="text-[15px] italic text-[var(--text-secondary)]">
+          Showing results from 1-{filteredMissions.length} of {totalMissions}{" "}
+          Entries
         </div>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
           <button
-            className="text-sm text-[var(--text-muted)] bg-[var(--bg-tertiary)] rounded-lg cursor-not-allowed"
+            className="text-sm text-[#535353] bg-[#1D1D1D] rounded-lg cursor-not-allowed"
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Previous
           </button>
           <button
-            className="text-sm text-white bg-[var(--accent-purple)] rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
+            className="text-sm text-white bg-[#840B94] rounded-lg hover:bg-[#8b5cf6] transition-colors"
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Next &gt;

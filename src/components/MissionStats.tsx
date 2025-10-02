@@ -45,7 +45,7 @@ interface StatCardProps {
 function StatCard({ title, value, loading = false }: StatCardProps) {
   return (
     <div
-      className="bg-[var(--bg-tertiary)] rounded-lg"
+      className="bg-[#0C0C0C] rounded-lg"
       style={{ padding: "var(--spacing-lg)" }}
     >
       <div className="flex items-center justify-between">

@@ -11,10 +11,10 @@ interface ToggleSwitchProps {
 function ToggleSwitch({ isActive, onChange, label }: ToggleSwitchProps) {
   return (
     <div
-      className="flex items-center justify-between"
+      className="flex items-center gap-5"
       style={{ marginBottom: "var(--spacing-lg)" }}
     >
-      <span className="text-sm text-[var(--text-primary)]">{label}</span>
+     
       <button
         onClick={() => onChange(!isActive)}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[var(--accent-purple)] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] ${
@@ -28,6 +28,7 @@ function ToggleSwitch({ isActive, onChange, label }: ToggleSwitchProps) {
           }`}
         />
       </button>
+      <span className="text-sm text-[var(--text-primary)]">{label}</span> 
     </div>
   );
 }
@@ -99,7 +100,7 @@ export default function NotificationsSettings() {
 
   return (
     <div
-      className="bg-[var(--bg-card)] rounded-lg"
+      className="bg-[#0F0F0F] rounded-lg"
       style={{ padding: "var(--spacing-xl)" }}
     >
       <h2

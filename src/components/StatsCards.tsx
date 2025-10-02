@@ -23,7 +23,7 @@ function StatCard({ title, value, icon, loading }: StatCardProps) {
     >
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-[#595959] uppercase tracking-wider">
+          <h3 className="text-sm font-medium text-[#898989] uppercase tracking-wider">
             {title}
           </h3>
           <p
@@ -33,7 +33,7 @@ function StatCard({ title, value, icon, loading }: StatCardProps) {
             {loading ? "..." : value}
           </p>
         </div>
-        {icon && <div className="text-[var(--accent-purple)]">{icon}</div>}
+        {icon && <div className="text-[#7343B3]">{icon}</div>}
       </div>
     </div>
   );

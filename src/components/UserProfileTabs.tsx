@@ -17,7 +17,7 @@ function ProfileTab({ label, isActive, onClick }: ProfileTabProps) {
       onClick={onClick}
       className={`text-sm font-medium transition-colors ${
         isActive
-          ? "text-[var(--accent-purple)]"
+          ? "text-[#7343B3]"
           : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       }`}
       style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
@@ -37,7 +37,7 @@ function ProfileSummaryCard({ instructorData }: { instructorData: any }) {
 
   return (
     <div
-      className="bg-[var(--bg-card)] rounded-lg"
+      className="bg-[#0C0C0C] rounded-lg"
       style={{ padding: "var(--spacing-xl)" }}
     >
       <div className="flex items-start" style={{ gap: "var(--spacing-lg)" }}>
@@ -119,7 +119,7 @@ function ProfileSummaryCard({ instructorData }: { instructorData: any }) {
 function BioSection({ instructorData }: { instructorData: any }) {
   return (
     <div
-      className="bg-[var(--bg-card)] rounded-lg"
+      className="bg-[#0C0C0C] rounded-lg"
       style={{ padding: "var(--spacing-xl)" }}
     >
       <h3
@@ -174,7 +174,7 @@ function PersonalInformationSection({
 
   return (
     <div
-      className="bg-[var(--bg-card)] rounded-lg"
+      className="bg-[#0C0C0C] rounded-lg"
       style={{ padding: "var(--spacing-xl)" }}
     >
       <h3
@@ -184,11 +184,11 @@ function PersonalInformationSection({
         Personal Information
       </h3>
       <div
-        className="grid grid-cols-1 md:grid-cols-2"
+        className=""
         style={{ gap: "var(--spacing-md)" }}
       >
         {personalInfo.map((info, index) => (
-          <div key={index}>
+          <div key={index} className="grid grid-cols-2 gap-2 w-full">
             <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider">
               {info.label}
             </div>
@@ -231,7 +231,7 @@ function SocialLinksSection({ instructorData }: { instructorData: any }) {
 
   return (
     <div
-      className="bg-[var(--bg-card)] rounded-lg"
+      className="bg-[#0C0C0C] rounded-lg"
       style={{ padding: "var(--spacing-xl)" }}
     >
       <h3
@@ -241,11 +241,11 @@ function SocialLinksSection({ instructorData }: { instructorData: any }) {
         Social Links
       </h3>
       <div
-        className="grid grid-cols-1 md:grid-cols-2"
+        className=""
         style={{ gap: "var(--spacing-md)" }}
       >
         {socialLinks.map((link, index) => (
-          <div key={index}>
+          <div key={index} className="grid grid-cols-2 gap-2 w-full">
             <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider">
               {link.platform}
             </div>
@@ -588,7 +588,7 @@ export default function UserProfileTabs() {
       {activeTab === "Missions" && (
         <div className="flex flex-col" style={{ gap: "var(--spacing-lg)" }}>
           {missionData ? (
-            <div className="bg-[var(--bg-card)] rounded-lg overflow-hidden">
+            <div className="bg-[#0C0C0C] rounded-lg overflow-hidden">
               {/* Mission Header */}
               <div
                 className="flex flex-col md:flex-row md:items-start md:justify-between"
@@ -679,7 +679,7 @@ export default function UserProfileTabs() {
                 {/* Mission Thumbnail */}
                 {missionData.thumbnail?.url && (
                   <div
-                    className="rounded-lg overflow-hidden"
+                    className="rounded-lg overflow-hidden w-[200px] h-[150px]"
                     style={{ marginBottom: "var(--spacing-md)" }}
                   >
                     <img

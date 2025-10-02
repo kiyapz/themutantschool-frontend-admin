@@ -62,9 +62,7 @@ function StatusButton({ status }: StatusButtonProps) {
   return (
     <button
       className={`rounded-full text-xs font-medium transition-colors ${
-        isActive
-          ? "bg-[var(--accent-blue)] text-white"
-          : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
+        isActive ? "bg-[#191B30] text-[#387EFF]" : "bg-[#757575] text-[#757575]"
       }`}
       style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
     >
@@ -81,8 +79,8 @@ function InstructorRow({
   index: number;
 }) {
   const fullName = `${instructor.firstName} ${instructor.lastName}`;
-  const location = `${instructor.profile.city || "N/A"}, ${
-    instructor.profile.country || "N/A"
+  const location = `${instructor.nationality} ${
+    instructor.profile.country 
   }`;
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
@@ -93,8 +91,9 @@ function InstructorRow({
 
   return (
     <tr
-      style={{ borderBottom: "1px solid var(--border-primary)" }}
-      className="hover:bg-[var(--bg-tertiary)] transition-colors"
+      // style={{ borderBottom: "1px solid var(--border-primary)" }}
+      style={{ marginBottom: "20px",}}
+      className="bg-[#0C0C0C] cursor-pointer transition-colors"
     >
       <td
         className="text-sm text-[var(--text-secondary)]"
@@ -111,34 +110,32 @@ function InstructorRow({
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-red-500 rounded-full flex items-center justify-center">
-            <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full"></div>
-          </div>
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-red-500 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full"></div>
+            </div>
           )}
           <div>
             <div className="text-sm font-medium text-[var(--text-primary)]">
               {fullName}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              {location}
-            </div>
+            <div className="text-[12px] text-[#5F5F5F]">{location}</div>
           </div>
         </div>
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {instructor.stats.activeMissions}
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {instructor.stats.completedMissions}
       </td>
       <td
-        className="text-sm text-[var(--text-primary)]"
+        className="text-sm text-[#5F5F5F]"
         style={{ padding: "var(--spacing-md)" }}
       >
         {instructor.stats.totalStudents}
@@ -151,7 +148,7 @@ function InstructorRow({
               instructor.earnings.currency
             )}
           </div>
-          <div className="text-xs text-[var(--text-secondary)]">
+          <div className="text-xs text-[#5F5F5F]">
             Monthly:{" "}
             {formatCurrency(
               instructor.earnings.monthlyEarnings,
@@ -241,31 +238,27 @@ export default function InstructorsList() {
       setLoading(true);
       setError(null);
 
-      console.log("=== FETCHING INSTRUCTORS FROM BACKEND ===");
-      console.log("Using endpoint: /api/admin/users/instructors");
       const response = await adminApi.get("/users/instructors");
-      console.log("=== COMPLETE INSTRUCTORS API RESPONSE ===");
-      console.log("Instructors API Response:", response.data);
-      console.log("Response data type:", typeof response.data);
-      console.log("Response data keys:", Object.keys(response.data));
-      console.log("Response success:", response.data.success);
-      console.log("Response message:", response.data.message);
-      console.log("Response status:", response.data.status);
-      console.log("Response pagination:", response.data.pagination);
 
       if (response.data.success) {
-        // The array is in response.data.data
+        // The array is in response.data.data.data
         console.log("=== DEBUGGING DATA ACCESS ===");
         console.log("response.data:", response.data);
-        console.log("response.data.data:", response.data.data);
-        console.log("response.data.data type:", typeof response.data.data);
+       
         console.log(
-          "response.data.data is array:",
-          Array.isArray(response.data.data)
+          "response.data.data.data type:",
+          typeof response.data?.data?.data
         );
-        console.log("response.data.data length:", response.data.data?.length);
+        console.log(
+          "response.data.data.data is array:",
+          Array.isArray(response.data?.data?.data)
+        );
+        console.log(
+          "response.data.data.data length:",
+          response.data?.data?.data?.length
+        );
 
-        const instructorsData = response.data.data;
+        const instructorsData = response.data?.data?.data;
         console.log("Instructors data:", instructorsData);
         console.log("Instructors data type:", typeof instructorsData);
         console.log(
@@ -274,11 +267,37 @@ export default function InstructorsList() {
         );
         console.log("=== END DEBUGGING ===");
 
-        if (Array.isArray(instructorsData)) {
+        // Check if data is nested in a different structure
+        let actualInstructorsData = instructorsData;
+        if (
+          !Array.isArray(instructorsData) &&
+          instructorsData &&
+          typeof instructorsData === "object"
+        ) {
+          // Try to find the array in the object
+          if (instructorsData.data && Array.isArray(instructorsData.data)) {
+            actualInstructorsData = instructorsData.data;
+            console.log(
+              "Found instructors array in instructorsData.data:",
+              actualInstructorsData
+            );
+          } else if (
+            instructorsData.instructors &&
+            Array.isArray(instructorsData.instructors)
+          ) {
+            actualInstructorsData = instructorsData.instructors;
+            console.log(
+              "Found instructors array in instructorsData.instructors:",
+              actualInstructorsData
+            );
+          }
+        }
+
+        if (Array.isArray(actualInstructorsData)) {
           console.log("✅ SUCCESS: Instructors data is an array!");
-          console.log("Instructors count:", instructorsData.length);
+          console.log("Instructors count:", actualInstructorsData.length);
           console.log("=== INDIVIDUAL INSTRUCTORS ===");
-          instructorsData.forEach((instructor: any, index: number) => {
+          actualInstructorsData.forEach((instructor: any, index: number) => {
             console.log(`Instructor ${index + 1}:`, {
               _id: instructor._id,
               firstName: instructor.firstName,
@@ -293,7 +312,7 @@ export default function InstructorsList() {
           });
 
           // Transform backend data to match our interface
-          const transformedInstructors = instructorsData.map(
+          const transformedInstructors = actualInstructorsData.map(
             (instructor: any) => ({
               ...instructor,
               status: instructor.isActive ? "active" : "inactive",
@@ -314,20 +333,12 @@ export default function InstructorsList() {
             })
           );
 
-          console.log("=== TRANSFORMATION COMPLETE ===");
-          console.log(
-            "Transformed instructors count:",
-            transformedInstructors.length
-          );
-          console.log("Transformed instructors:", transformedInstructors);
-          console.log("Setting instructors state...");
+         
+         
           setInstructors(transformedInstructors);
           console.log("=== INSTRUCTORS FETCH COMPLETE ===");
         } else {
-          console.error("❌ ERROR: Instructors data is not an array!");
-          console.error("Instructors data:", instructorsData);
-          console.error("Data type:", typeof instructorsData);
-          console.error("Is array:", Array.isArray(instructorsData));
+          
           console.error("Full response structure:", response.data);
           setError("Invalid data format received from server");
         }
@@ -358,16 +369,14 @@ export default function InstructorsList() {
 
   if (loading) {
     return (
-      <div className="bg-[var(--bg-card)] rounded-lg">
+      <div className="">
         <div
           className="flex items-center justify-center"
           style={{ padding: "var(--spacing-2xl)" }}
         >
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-[var(--accent-purple)] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-[var(--text-secondary)] mt-4">
-              Loading instructors...
-            </p>
+            <div className="w-8 h-8 border-4 border-[#7343B3] border-t-transparent rounded-full animate-spin mx-auto"></div>
+           
           </div>
         </div>
       </div>
@@ -385,7 +394,7 @@ export default function InstructorsList() {
             <p className="text-[var(--accent-red)] mb-4">{error}</p>
             <button
               onClick={fetchInstructors}
-              className="bg-[var(--accent-purple)] text-white px-4 py-2 rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
+              className="bg-[#7343B3] text-white px-4 py-2 rounded-lg hover:bg-[#8b5cf6] transition-colors"
             >
               Retry
             </button>
@@ -396,11 +405,14 @@ export default function InstructorsList() {
   }
 
   return (
-    <div className="bg-[var(--bg-card)] rounded-lg">
+    <div className=" rounded-lg flex flex-col gap-8">
       {/* Header */}
       <div
-        className="flex items-center justify-between"
-        style={{ padding: "var(--spacing-lg)" }}
+        className="flex items-center justify-between bg-[#0C0C0C] rounded-[20px]"
+        style={{
+          padding: "var(--spacing-lg)",
+          // marginBottom: "var(--spacing-lg)",
+        }}
       >
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">
           Instructors List
@@ -412,10 +424,8 @@ export default function InstructorsList() {
           >
             <button
               onClick={() => handleStatusFilter("all")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "all"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+                statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -423,10 +433,8 @@ export default function InstructorsList() {
             </button>
             <button
               onClick={() => handleStatusFilter("active")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "active"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+                statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -434,10 +442,8 @@ export default function InstructorsList() {
             </button>
             <button
               onClick={() => handleStatusFilter("inactive")}
-              className={`rounded-lg transition-colors ${
-                statusFilter === "inactive"
-                  ? "bg-[var(--accent-purple)] text-white"
-                  : "bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-secondary)]"
+              className={`rounded-lg transition-colors shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+                statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
               }`}
               style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
             >
@@ -447,13 +453,20 @@ export default function InstructorsList() {
           <select
             value={sortBy}
             onChange={handleSortChange}
-            className="bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg focus:outline-none"
+            className={`rounded-lg transition-colors outline-none shadow-md cursor-pointer  text-[#878787] text-[19px] font-medium  ${
+              statusFilter === "all" ? "bg-[#161616] " : "bg-[#161616]  "
+            }`}
             style={{
               padding: "var(--spacing-sm) var(--spacing-md)",
-              border: "1px solid var(--border-primary)",
+              border: "",
             }}
           >
-            <option value="oldest-to-newest">Sort By: Oldest to Newest</option>
+            <option value="oldest-to-newest">
+              <span className="text-[#ffffff] text-[19px] font-medium">
+                Sort By:{" "}
+              </span>{" "}
+              Oldest to Newest
+            </option>
             <option value="newest-to-oldest">Sort By: Newest to Oldest</option>
             <option value="name-a-z">Sort By: Name A-Z</option>
             <option value="name-z-a">Sort By: Name Z-A</option>
@@ -462,10 +475,10 @@ export default function InstructorsList() {
       </div>
 
       {/* Table */}
-      <div style={{ overflowX: "auto" }}>
+      <div style={{ overflowX: "auto" }} className=" ">
         <table style={{ width: "100%" }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid var(--border-primary)" }}>
+            <tr>
               <th
                 className="text-left text-sm font-medium text-[var(--text-secondary)]"
                 style={{ padding: "var(--spacing-md)" }}
@@ -494,7 +507,7 @@ export default function InstructorsList() {
                 className="text-left text-sm font-medium text-[var(--text-secondary)]"
                 style={{ padding: "var(--spacing-md)" }}
               >
-                Students
+                Recruits
               </th>
               <th
                 className="text-left text-sm font-medium text-[var(--text-secondary)]"
@@ -516,7 +529,7 @@ export default function InstructorsList() {
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ marginBottom: "10px" }}>
             {filteredInstructors.map((instructor, index) => (
               <InstructorRow
                 key={instructor._id}
@@ -533,22 +546,22 @@ export default function InstructorsList() {
         className="flex items-center justify-between"
         style={{
           padding: "var(--spacing-lg)",
-          borderTop: "1px solid var(--border-primary)",
+          // borderTop: "1px solid var(--border-primary)",
         }}
       >
-        <div className="text-sm text-[var(--text-secondary)]">
-          Showing {filteredInstructors.length} of {instructors.length}{" "}
-          instructors
+        <div className="text-[15px] italic text-[var(--text-secondary)]">
+          instructors Showing results from 1- {filteredInstructors.length} of{" "}
+          {instructors.length} Entries
         </div>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
           <button
-            className="text-sm text-[var(--text-muted)] bg-[var(--bg-tertiary)] rounded-lg cursor-not-allowed"
+            className="text-sm text-[#535353] bg-[#1D1D1D] rounded-lg cursor-not-allowed"
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Previous
           </button>
           <button
-            className="text-sm text-white bg-[var(--accent-purple)] rounded-lg hover:bg-[var(--accent-purple-light)] transition-colors"
+            className="text-sm text-white bg-[#840B94] rounded-lg cursor-pointer transition-colors"
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Next &gt;
