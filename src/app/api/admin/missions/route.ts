@@ -49,13 +49,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const page = searchParams.get("page") || "1";
+    const limit = searchParams.get("limit") || "10";
+
     // Fetch real data from backend
-    const missions = await getMissionsFromBackend(token);
+    const missions = await getMissionsFromBackend(token, page, limit);
 
     return NextResponse.json({
       success: true,
       data: missions,
-      total: missions.length,
       message: "Missions retrieved successfully",
     });
   } catch (error) {
@@ -67,24 +70,24 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function getMissionsFromBackend(token: string) {
+async function getMissionsFromBackend(
+  token: string,
+  page: string,
+  limit: string
+) {
   try {
     console.log("=== CALLING REAL BACKEND API ===");
-    console.log(
-      "URL: https://themutantschool-backend.onrender.com/api/admin/missions"
-    );
+    const url = `https://themutantschool-backend.onrender.com/api/admin/missions?page=${page}&limit=${limit}`;
+    console.log("URL:", url);
     console.log("Token:", token);
 
-    const response = await fetch(
-      "https://themutantschool-backend.onrender.com/api/admin/missions",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     console.log("Backend Response Status:", response.status);
     console.log(

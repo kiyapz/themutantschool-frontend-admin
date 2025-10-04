@@ -9,6 +9,7 @@ interface Instructor {
   _id: string;
   firstName: string;
   lastName: string;
+  email?: string;
   profile: {
     avatar?: {
       url: string;
@@ -63,7 +64,6 @@ function CategoryTag({ category }: CategoryTagProps) {
     switch (category?.toLowerCase()) {
       case "coding":
       case "programming":
-      
         return "bg-[#30192E] text-[#840B94]";
       case "design":
         return "bg-[#302A19] text-[#FF9F38]";
@@ -160,7 +160,6 @@ function MissionRow({
 
   return (
     <tr
-      
       className="hover:opacity-80 transition-colors cursor-pointer"
       onClick={() => onMissionClick(mission)}
     >
@@ -183,9 +182,11 @@ function MissionRow({
             }}
           >
             by{" "}
-            {mission.instructorDetails
+            {mission.instructorDetails &&
+            mission.instructorDetails.firstName &&
+            mission.instructorDetails.lastName
               ? `${mission.instructorDetails.firstName} ${mission.instructorDetails.lastName}`
-              : mission.instructor}
+              : mission.instructor || "Unknown Instructor"}
           </div>
         </div>
       </td>
@@ -311,6 +312,8 @@ export default function MissionsList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalMissions, setTotalMissions] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [sortBy, setSortBy] = useState<string>("oldest-to-newest");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [mounted, setMounted] = useState(false);
@@ -412,9 +415,7 @@ export default function MissionsList() {
   const handlePublishMission = async (missionId: string) => {
     try {
       console.log("Publishing mission:", missionId);
-      const response = await adminApi.put(`/missions/${missionId}/publish`, {
-        isPublished: true,
-      });
+      const response = await adminApi.put(`/missions/${missionId}/publish`);
 
       if (response.status === 200) {
         console.log("Mission published successfully");
@@ -440,9 +441,7 @@ export default function MissionsList() {
   const handleUnpublishMission = async (missionId: string) => {
     try {
       console.log("Unpublishing mission:", missionId);
-      const response = await adminApi.put(`/missions/${missionId}/draft`, {
-        isPublished: false,
-      });
+      const response = await adminApi.put(`/missions/${missionId}/draft`);
 
       if (response.status === 200) {
         console.log("Mission unpublished successfully");
@@ -476,6 +475,103 @@ export default function MissionsList() {
     console.log("Dropdown state changed:", dropdownOpen);
   }, [dropdownOpen]);
 
+  const fetchInstructors = async () => {
+    try {
+      console.log("--- Fetching instructors ---");
+      const response = await adminApi.get("/users/instructors");
+
+      // The array is nested in response.data.data.data
+      const instructorsArray = response?.data?.data?.data;
+
+      if (instructorsArray && Array.isArray(instructorsArray)) {
+        console.log(
+          `✅ Success! Found ${instructorsArray.length} instructors.`
+        );
+
+        // Create a map of instructor IDs to instructor objects
+        const instructorsMap: Record<string, Instructor> = {};
+        instructorsArray.forEach((instructor: Instructor) => {
+          instructorsMap[instructor._id] = instructor;
+        });
+
+        setInstructors(instructorsMap);
+        return instructorsMap;
+      } else {
+        console.error(
+          "❌ Instructors data is not in the expected format:",
+          response.data
+        );
+        return {};
+      }
+    } catch (err) {
+      console.error("❌ Error fetching instructors:", err);
+      return {};
+    }
+  };
+
+  const fetchMissions = async (page: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log(`--- Fetching missions (page ${page}) ---`);
+
+      const instructorsMap = await fetchInstructors();
+
+      const response = await adminApi.get(`/missions?page=${page}&limit=10`);
+
+      const missionsArray = response?.data?.data?.data;
+      const pagination = response?.data?.data?.pagination;
+
+      if (pagination) {
+        console.log(`Total missions in database: ${pagination.totalItems}`);
+        setTotalMissions(pagination.totalItems);
+        setTotalPages(pagination.totalPages);
+        setCurrentPage(pagination.page);
+      }
+
+      if (missionsArray && Array.isArray(missionsArray)) {
+        console.log(`✅ Success! Found ${missionsArray.length} missions.`);
+
+        const missionsWithInstructors = missionsArray.map((mission: any) => {
+          let instructorObject: Instructor | undefined;
+          let instructorId = "";
+
+          if (
+            typeof mission.instructor === "object" &&
+            mission.instructor !== null
+          ) {
+            instructorObject = mission.instructor as Instructor;
+            instructorId = instructorObject._id;
+          } else if (typeof mission.instructor === "string") {
+            instructorId = mission.instructor;
+            instructorObject = instructorsMap[instructorId];
+          }
+
+          return {
+            ...mission,
+            instructor: instructorId,
+            instructorDetails: instructorObject,
+          };
+        });
+
+        setMissions(missionsWithInstructors);
+      } else {
+        const errorMsg =
+          "Data received, but it is not in the expected format (array missing).";
+        console.error("❌", errorMsg, response.data);
+        setError(errorMsg);
+        setMissions([]);
+      }
+    } catch (err) {
+      console.error("❌ Error fetching missions:", err);
+      setError("An error occurred while fetching missions.");
+      setMissions([]);
+    } finally {
+      setLoading(false);
+      console.log("--- Finished fetching missions ---");
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
 
@@ -497,95 +593,7 @@ export default function MissionsList() {
 
   useEffect(() => {
     setMounted(true);
-
-    const fetchInstructors = async () => {
-      try {
-        console.log("--- Fetching instructors ---");
-        const response = await adminApi.get("/users/instructors");
-
-        // The array is nested in response.data.data.data
-        const instructorsArray = response?.data?.data?.data;
-
-        if (instructorsArray && Array.isArray(instructorsArray)) {
-          console.log(
-            `✅ Success! Found ${instructorsArray.length} instructors.`
-          );
-
-          // Create a map of instructor IDs to instructor objects
-          const instructorsMap: Record<string, Instructor> = {};
-          instructorsArray.forEach((instructor: Instructor) => {
-            instructorsMap[instructor._id] = instructor;
-          });
-
-          setInstructors(instructorsMap);
-          return instructorsMap;
-        } else {
-          console.error(
-            "❌ Instructors data is not in the expected format:",
-            response.data
-          );
-          return {};
-        }
-      } catch (err) {
-        console.error("❌ Error fetching instructors:", err);
-        return {};
-      }
-    };
-
-    const fetchMissions = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        console.log("--- Fetching missions ---");
-
-        // Fetch instructors first
-        const instructorsMap = await fetchInstructors();
-
-        // Then fetch missions
-        const response = await adminApi.get("/missions");
-
-        // The array is nested in response.data.data.data
-        const missionsArray = response?.data?.data?.data;
-        const pagination = response?.data?.data?.pagination;
-
-        if (pagination) {
-          console.log(`Total missions in database: ${pagination.totalItems}`);
-          setTotalMissions(pagination.totalItems);
-        }
-
-        if (missionsArray && Array.isArray(missionsArray)) {
-          console.log(`✅ Success! Found ${missionsArray.length} missions.`);
-
-          // Add instructor details to each mission
-          const missionsWithInstructors = missionsArray.map(
-            (mission: Mission) => {
-              return {
-                ...mission,
-                instructorDetails:
-                  instructorsMap[mission.instructor] || undefined,
-              };
-            }
-          );
-
-          setMissions(missionsWithInstructors);
-        } else {
-          const errorMsg =
-            "Data received, but it is not in the expected format (array missing).";
-          console.error("❌", errorMsg, response.data);
-          setError(errorMsg);
-          setMissions([]);
-        }
-      } catch (err) {
-        console.error("❌ Error fetching missions:", err);
-        setError("An error occurred while fetching missions.");
-        setMissions([]);
-      } finally {
-        setLoading(false);
-        console.log("--- Finished fetching missions ---");
-      }
-    };
-
-    fetchMissions();
+    fetchMissions(1);
   }, []);
 
   const filteredMissions = useMemo(() => {
@@ -675,6 +683,18 @@ export default function MissionsList() {
     return filtered;
   }, [missions, sortBy, statusFilter]);
 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      fetchMissions(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      fetchMissions(currentPage - 1);
+    }
+  };
+
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
   };
@@ -723,101 +743,7 @@ export default function MissionsList() {
           <div className="text-center">
             <p className="text-[var(--accent-red)] mb-4">{error}</p>
             <button
-              onClick={() => {
-                setMounted(true);
-
-                const fetchInstructors = async () => {
-                  try {
-                    console.log("--- Fetching instructors ---");
-                    const response = await adminApi.get("/users/instructors");
-
-                    // The array is nested in response.data.data.data
-                    const instructorsArray = response?.data?.data?.data;
-
-                    if (instructorsArray && Array.isArray(instructorsArray)) {
-                      console.log(
-                        `✅ Success! Found ${instructorsArray.length} instructors.`
-                      );
-
-                      // Create a map of instructor IDs to instructor objects
-                      const instructorsMap: Record<string, Instructor> = {};
-                      instructorsArray.forEach((instructor: Instructor) => {
-                        instructorsMap[instructor._id] = instructor;
-                      });
-
-                      setInstructors(instructorsMap);
-                      return instructorsMap;
-                    } else {
-                      console.error(
-                        "❌ Instructors data is not in the expected format:",
-                        response.data
-                      );
-                      return {};
-                    }
-                  } catch (err) {
-                    console.error("❌ Error fetching instructors:", err);
-                    return {};
-                  }
-                };
-
-                const fetchMissions = async () => {
-                  setLoading(true);
-                  setError(null);
-                  try {
-                    console.log("--- Fetching missions ---");
-
-                    // Fetch instructors first
-                    const instructorsMap = await fetchInstructors();
-
-                    // Then fetch missions
-                    const response = await adminApi.get("/missions");
-
-                    // The array is nested in response.data.data.data
-                    const missionsArray = response?.data?.data?.data;
-                    const pagination = response?.data?.data?.pagination;
-
-                    if (pagination) {
-                      console.log(
-                        `Total missions in database: ${pagination.totalItems}`
-                      );
-                    }
-
-                    if (missionsArray && Array.isArray(missionsArray)) {
-                      console.log(
-                        `✅ Success! Found ${missionsArray.length} missions.`
-                      );
-
-                      // Add instructor details to each mission
-                      const missionsWithInstructors = missionsArray.map(
-                        (mission: Mission) => {
-                          return {
-                            ...mission,
-                            instructorDetails:
-                              instructorsMap[mission.instructor] || undefined,
-                          };
-                        }
-                      );
-
-                      setMissions(missionsWithInstructors);
-                    } else {
-                      const errorMsg =
-                        "Data received, but it is not in the expected format (array missing).";
-                      console.error("❌", errorMsg, response.data);
-                      setError(errorMsg);
-                      setMissions([]);
-                    }
-                  } catch (err) {
-                    console.error("❌ Error fetching missions:", err);
-                    setError("An error occurred while fetching missions.");
-                    setMissions([]);
-                  } finally {
-                    setLoading(false);
-                    console.log("--- Finished fetching missions ---");
-                  }
-                };
-
-                fetchMissions();
-              }}
+              onClick={() => fetchMissions(1)}
               className="bg-[#7343B3] text-white px-4 py-2 rounded-lg hover:bg-[#8b5cf6] transition-colors"
             >
               Retry
@@ -1003,18 +929,30 @@ export default function MissionsList() {
         }}
       >
         <div className="text-[8px] sm:text-[15px] italic text-[var(--text-secondary)]">
-          Showing results from 1-{filteredMissions.length} of {totalMissions}{" "}
-          Entries
+          Showing results from {(currentPage - 1) * 10 + 1}-
+          {(currentPage - 1) * 10 + missions.length} of {totalMissions} Entries
         </div>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
           <button
-            className="text-sm text-[#535353] bg-[#1D1D1D] rounded-lg cursor-not-allowed"
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className={`text-sm rounded-lg transition-colors ${
+              currentPage === 1
+                ? "text-[#535353] bg-[#1D1D1D] cursor-not-allowed"
+                : "text-white bg-[#840B94] hover:bg-[#8b5cf6]"
+            }`}
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Previous
           </button>
           <button
-            className="text-sm text-white bg-[#840B94] rounded-lg hover:bg-[#8b5cf6] transition-colors"
+            onClick={handleNextPage}
+            disabled={currentPage >= totalPages}
+            className={`text-sm rounded-lg transition-colors ${
+              currentPage >= totalPages
+                ? "text-[#535353] bg-[#1D1D1D] cursor-not-allowed"
+                : "text-white bg-[#840B94] hover:bg-[#8b5cf6]"
+            }`}
             style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
           >
             Next &gt;

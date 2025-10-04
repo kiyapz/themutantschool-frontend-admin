@@ -67,6 +67,7 @@ function StatCard({ title, value, loading = false }: StatCardProps) {
 
 export default function MissionStats() {
   const [missions, setMissions] = useState<Mission[]>([]);
+  const [totalMissions, setTotalMissions] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -90,6 +91,12 @@ export default function MissionStats() {
 
       // The array is nested in response.data.data.data
       const missionsArray = response?.data?.data?.data;
+      const pagination = response?.data?.data?.pagination;
+
+      if (pagination) {
+        console.log(`Total missions in database: ${pagination.totalItems}`);
+        setTotalMissions(pagination.totalItems);
+      }
 
       if (missionsArray && Array.isArray(missionsArray)) {
         console.log(`✅ Success! Found ${missionsArray.length} missions.`);
@@ -144,11 +151,12 @@ export default function MissionStats() {
     `Published count: ${publishedMissions}, Draft count: ${draftMissions}`
   );
   console.log("=== END MISSION STATS DEBUG ===");
-  const totalMissions = missions.length;
   const freeMissions = missions.filter(
     (mission) => mission.isFree === true
   ).length;
-  const paidMissions = totalMissions - freeMissions;
+  const paidMissions = missions.filter(
+    (mission) => mission.isFree === false
+  ).length;
 
   console.log("=== CALCULATED STATISTICS ===");
   console.log("Total missions:", totalMissions);
