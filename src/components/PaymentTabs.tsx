@@ -9,7 +9,7 @@ export interface Transaction {
   // Exporting the interface
   _id: string;
   missionId: string;
-  studentId: string;
+  studentId?: string;
   sessionId: string;
   amount: number;
   status: "pending" | "succeeded" | "failed" | "refunded";
@@ -105,7 +105,7 @@ function TransactionRow({
             }).format(transaction.amount)}
           </div>
           <div className="text-xs text-[var(--text-secondary)] font-mono">
-            Student: {transaction.studentId.slice(-6)}
+            Student: {transaction.studentId?.slice(-6) || "N/A"}
           </div>
         </div>
       </td>

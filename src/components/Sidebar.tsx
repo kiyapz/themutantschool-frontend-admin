@@ -30,6 +30,7 @@ const navigationItems = [
   { icon: Grid3X3, label: "Affiliates", href: "/affiliates" },
   { icon: Target, label: "Missions", href: "/missions" },
   { icon: DollarSign, label: "Payments", href: "/payments" },
+  { icon: UserCheck, label: "KYC", href: "/kyc" },
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
 

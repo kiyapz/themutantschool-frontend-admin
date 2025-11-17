@@ -95,7 +95,7 @@ export default function TransactionDetailModal({
           >
             <div>
               <span className="text-white text-lg">
-                @{transaction.studentId.slice(-6)} Payment Request of{" "}
+                @{transaction.studentId?.slice(-6) || "N/A"} Payment Request of{" "}
                 <span style={{ color: "var(--accent-purple)" }}>
                   {formatCurrency(transaction.amount)}
                 </span>
@@ -159,7 +159,7 @@ export default function TransactionDetailModal({
                 Student ID
               </div>
               <div className="font-medium">
-                {transaction.studentId.slice(-6)}
+                {transaction.studentId?.slice(-6) || "N/A"}
               </div>
             </div>
 
