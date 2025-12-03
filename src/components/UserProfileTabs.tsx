@@ -11,17 +11,25 @@ interface InstructorData {
   lastName?: string;
   email?: string;
   username?: string;
+  phoneNumber?: string;
+  gender?: string;
+  nationality?: string;
+  dateOfBirth?: string;
+  preferredLanguage?: string;
   profile?: {
     avatar?: { url: string };
     phone?: string;
     country?: string;
     city?: string;
     bio?: string;
+    headline?: string;
     socialLinks?: {
       facebook?: string;
       linkedin?: string;
       github?: string;
       twitter?: string;
+      instagram?: string;
+      website?: string;
       [key: string]: unknown;
     };
     [key: string]: unknown;
@@ -43,6 +51,14 @@ interface InstructorData {
 interface MissionData {
   _id?: string;
   title?: string;
+  category?: string;
+  skillLevel?: string;
+  description?: string;
+  shortDescription?: string;
+  bio?: string;
+  estimatedDuration?: string;
+  averageRating?: number;
+  reviews?: unknown[];
   thumbnail?: { url: string };
   levels?: Array<{ name?: string; title?: string; description?: string; [key: string]: unknown }>;
   tags?: Array<string | unknown>;
@@ -220,7 +236,7 @@ function PersonalInformationSection({
     { label: "Phone Number", value: instructorData?.phoneNumber || "N/A" },
     { label: "Gender", value: instructorData?.gender || "N/A" },
     { label: "Nationality", value: instructorData?.nationality || "N/A" },
-    { label: "Date Of Birth", value: formatDate(instructorData?.dateOfBirth) },
+    { label: "Date Of Birth", value: formatDate(instructorData?.dateOfBirth || "") },
     {
       label: "Preferred Language",
       value: instructorData?.preferredLanguage || "N/A",
@@ -261,7 +277,7 @@ function PersonalInformationSection({
 }
 
 function SocialLinksSection({ instructorData }: { instructorData: InstructorData }) {
-  const socialLinks = [
+  const socialLinks: Array<{ platform: string; url: string }> = [
     {
       platform: "Facebook",
       url: instructorData?.profile?.socialLinks?.facebook || "N/A",
@@ -415,7 +431,7 @@ export default function UserProfileTabs() {
       setDeleteModal({
         show: true,
         missionId: missionId,
-        missionTitle: missionData.title,
+        missionTitle: missionData.title || "Unknown Mission",
       });
     }
   };
@@ -488,7 +504,7 @@ export default function UserProfileTabs() {
     if (userData) {
       setUserDeleteModal({
         show: true,
-        userId: userData._id,
+        userId: userData._id ?? null,
         userName: `${userData.firstName} ${userData.lastName}`,
         userType: userType,
       });
@@ -657,7 +673,7 @@ export default function UserProfileTabs() {
                     {missionData.title}
                   </h3>
                   <div className="text-sm text-[var(--text-secondary)]">
-                    {missionData.category} • {missionData.skillLevel}
+                    {missionData.category || "N/A"} • {missionData.skillLevel || "N/A"}
                   </div>
                   <div
                     className="flex items-center"
@@ -699,9 +715,10 @@ export default function UserProfileTabs() {
                     style={{ gap: "var(--spacing-sm)" }}
                   >
                     {!missionData.isPublished &&
-                      missionData.status?.toLowerCase() !== "published" && (
+                      missionData.status?.toLowerCase() !== "published" &&
+                      missionData._id && (
                         <button
-                          onClick={() => handlePublishMission(missionData._id)}
+                          onClick={() => handlePublishMission(missionData._id!)}
                           className="flex items-center text-[var(--accent-green)] hover:text-green-600 transition-colors text-sm font-medium"
                           style={{
                             padding: "var(--spacing-xs) var(--spacing-sm)",
@@ -714,8 +731,9 @@ export default function UserProfileTabs() {
                           Publish
                         </button>
                       )}
-                    <button
-                      onClick={() => handleDeleteMission(missionData._id)}
+                    {missionData._id && (
+                      <button
+                        onClick={() => handleDeleteMission(missionData._id!)}
                       className="flex items-center text-[var(--accent-red)] hover:text-red-600 transition-colors text-sm font-medium"
                       style={{ padding: "var(--spacing-xs) var(--spacing-sm)" }}
                     >
@@ -725,6 +743,7 @@ export default function UserProfileTabs() {
                       />
                       Delete
                     </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -864,7 +883,7 @@ export default function UserProfileTabs() {
                       style={{ gap: "var(--spacing-sm)" }}
                     >
                       {missionData.tags.map((tag: string | unknown, index: number) => {
-                        let tagText = tag;
+                        let tagText: string = typeof tag === "string" ? tag : String(tag || "");
                         try {
                           if (typeof tag === "string" && tag.startsWith("[")) {
                             const parsedTags = JSON.parse(tag);
