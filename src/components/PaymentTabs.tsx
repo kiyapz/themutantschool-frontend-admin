@@ -6,7 +6,7 @@ import adminApi from "@/utils/api";
 import TransactionDetailModal from "./TransactionDetailModal";
 
 export interface Transaction {
-  // Exporting the interface
+  
   _id: string;
   missionId: string;
   studentId?: string;
@@ -366,7 +366,7 @@ export default function PaymentTabs() {
           >
             Payouts
           </button>
-          {/* Other main tabs can be added here */}
+         
         </div>
 
         {/* Tab Content */}
