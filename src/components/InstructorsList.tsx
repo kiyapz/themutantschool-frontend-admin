@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { MoreHorizontal } from "lucide-react";
 import adminApi from "@/utils/api";
 
@@ -12,9 +13,10 @@ interface Instructor {
   username: string;
   role: string;
   isActive: boolean;
+  isVerified?: boolean;
   createdAt: string;
   updatedAt: string;
-  profile: {
+  profile?: {
     avatar?: {
       url: string;
       key: string;
@@ -35,6 +37,13 @@ interface Instructor {
       dev?: string;
     };
   };
+  completedMissions?: unknown[];
+  activeMissions?: unknown[];
+  totalStudents?: number;
+  reviews?: unknown[];
+  averageRating?: number;
+  totalEarnings?: number;
+  monthlyEarnings?: number;
   // Add computed fields for display
   status: "active" | "inactive";
   joinDate: string;
@@ -51,6 +60,49 @@ interface Instructor {
     monthlyEarnings: number;
     currency: string;
   };
+}
+
+interface InstructorFromAPI {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  role: string;
+  isActive: boolean;
+  isVerified?: boolean;
+  createdAt: string;
+  updatedAt: string;
+  profile?: {
+    avatar?: {
+      url: string;
+      key: string;
+    };
+    phone?: string;
+    country?: string;
+    city?: string;
+    bio?: string;
+    expertiseTags?: string[];
+    socialLinks?: {
+      facebook?: string;
+      linkedin?: string;
+      github?: string;
+      twitter?: string;
+      behance?: string;
+      dribbble?: string;
+      medium?: string;
+      kaggle?: string;
+      dev?: string;
+    };
+  };
+  completedMissions?: unknown[];
+  activeMissions?: unknown[];
+  totalStudents?: number;
+  reviews?: unknown[];
+  averageRating?: number;
+  totalEarnings?: number;
+  monthlyEarnings?: number;
+  // Raw API response fields if they differ from the Instructor interface directly
 }
 
 interface StatusButtonProps {
@@ -79,7 +131,7 @@ function InstructorRow({
   index: number;
 }) {
   const fullName = `${instructor.firstName} ${instructor.lastName}`;
-  const location = instructor.profile.country || "Unknown";
+  const location = instructor.profile?.country || "Unknown";
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -101,10 +153,12 @@ function InstructorRow({
       </td>
       <td style={{ padding: "var(--spacing-md)" }}>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
-          {instructor.profile.avatar?.url ? (
-            <img
+          {instructor.profile?.avatar?.url ? (
+            <Image
               src={instructor.profile.avatar.url}
               alt={fullName}
+              width={32}
+              height={32}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
@@ -292,26 +346,10 @@ export default function InstructorsList() {
         }
 
         if (Array.isArray(actualInstructorsData)) {
-          console.log("✅ SUCCESS: Instructors data is an array!");
-          console.log("Instructors count:", actualInstructorsData.length);
-          console.log("=== INDIVIDUAL INSTRUCTORS ===");
-          actualInstructorsData.forEach((instructor: any, index: number) => {
-            console.log(`Instructor ${index + 1}:`, {
-              _id: instructor._id,
-              firstName: instructor.firstName,
-              lastName: instructor.lastName,
-              username: instructor.username,
-              email: instructor.email,
-              isActive: instructor.isActive,
-              isVerified: instructor.isVerified,
-              createdAt: instructor.createdAt,
-              profile: instructor.profile,
-            });
-          });
+          console.log(`✅ Success! Found ${actualInstructorsData.length} instructors.`);
 
-          // Transform backend data to match our interface
-          const transformedInstructors = actualInstructorsData.map(
-            (instructor: any) => ({
+          const transformedInstructors: Instructor[] = actualInstructorsData.map(
+            (instructor: InstructorFromAPI) => ({
               ...instructor,
               status: instructor.isActive ? "active" : "inactive",
               joinDate: instructor.createdAt,
@@ -322,12 +360,12 @@ export default function InstructorsList() {
                 totalStudents: instructor.totalStudents || 0,
                 averageRating: instructor.averageRating || 0,
                 totalReviews: instructor.reviews?.length || 0,
-              },
+              } as Instructor['stats'], // Explicitly cast to ensure correct literal type
               earnings: {
                 totalEarnings: instructor.totalEarnings || 0,
                 monthlyEarnings: instructor.monthlyEarnings || 0,
                 currency: "USD",
-              },
+              } as Instructor['earnings'], // Explicitly cast
             })
           );
 

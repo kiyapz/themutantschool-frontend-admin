@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import authApiUrl from "@/utils/authApi";
@@ -14,7 +14,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login, setIsAuthenticated, setUser } = useAuth();
+  const { setIsAuthenticated, setUser } = useAuth();
   const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +43,7 @@ export default function LoginForm() {
       console.log("Login response:", response);
 
       if (response.status === 200) {
-        const { message, accessToken, user, refreshToken } = response.data;
+        const { accessToken, user, refreshToken } = response.data;
 
         console.log("Login successful:", response.data);
 

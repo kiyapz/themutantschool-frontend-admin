@@ -1,9 +1,28 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { MoreHorizontal, Trash2, Eye, EyeOff } from "lucide-react";
 import adminApi from "@/utils/api";
+
+interface Review {
+  _id?: string;
+  rating?: number;
+  comment?: string;
+  [key: string]: unknown;
+}
+
+interface Level {
+  _id?: string;
+  title?: string;
+  [key: string]: unknown;
+}
+
+interface ValidCoupon {
+  _id?: string;
+  code?: string;
+  [key: string]: unknown;
+}
 
 interface Instructor {
   _id: string;
@@ -30,7 +49,7 @@ interface Mission {
   isPublished: boolean;
   status: string;
   averageRating: number;
-  reviews: any[];
+  reviews: Review[];
   description?: string;
   shortDescription?: string;
   bio?: string;
@@ -47,8 +66,8 @@ interface Mission {
   };
   certificateAvailable?: boolean;
   tags?: string[];
-  levels?: any[];
-  validCoupons?: any[];
+  levels?: Level[];
+  validCoupons?: ValidCoupon[];
   // Add computed fields for display
   capsules?: number;
   recruits?: number;
@@ -509,7 +528,7 @@ export default function MissionsList() {
     }
   };
 
-  const fetchMissions = async (page: number) => {
+  const fetchMissions = useCallback(async (page: number) => {
     setLoading(true);
     setError(null);
     try {
@@ -532,26 +551,30 @@ export default function MissionsList() {
       if (missionsArray && Array.isArray(missionsArray)) {
         console.log(`✅ Success! Found ${missionsArray.length} missions.`);
 
-        const missionsWithInstructors = missionsArray.map((mission: any) => {
+        const missionsWithInstructors = missionsArray.map((mission: unknown) => {
+          const missionData = mission as {
+            instructor?: string | Instructor;
+            [key: string]: unknown;
+          };
           let instructorObject: Instructor | undefined;
           let instructorId = "";
 
           if (
-            typeof mission.instructor === "object" &&
-            mission.instructor !== null
+            typeof missionData.instructor === "object" &&
+            missionData.instructor !== null
           ) {
-            instructorObject = mission.instructor as Instructor;
+            instructorObject = missionData.instructor as Instructor;
             instructorId = instructorObject._id;
-          } else if (typeof mission.instructor === "string") {
-            instructorId = mission.instructor;
+          } else if (typeof missionData.instructor === "string") {
+            instructorId = missionData.instructor;
             instructorObject = instructorsMap[instructorId];
           }
 
           return {
-            ...mission,
+            ...missionData,
             instructor: instructorId,
             instructorDetails: instructorObject,
-          };
+          } as Mission;
         });
 
         setMissions(missionsWithInstructors);
@@ -570,7 +593,7 @@ export default function MissionsList() {
       setLoading(false);
       console.log("--- Finished fetching missions ---");
     }
-  };
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -594,7 +617,7 @@ export default function MissionsList() {
   useEffect(() => {
     setMounted(true);
     fetchMissions(1);
-  }, []);
+  }, [fetchMissions]);
 
   const filteredMissions = useMemo(() => {
     let filtered = Array.isArray(missions) ? [...missions] : [];

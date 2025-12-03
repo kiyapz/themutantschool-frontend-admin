@@ -15,7 +15,7 @@ interface Mission {
   isPublished: boolean;
   status: string;
   averageRating: number;
-  reviews: any[];
+  reviews: unknown[];
   description?: string;
   shortDescription?: string;
   bio?: string;
@@ -32,8 +32,8 @@ interface Mission {
   };
   certificateAvailable?: boolean;
   tags?: string[];
-  levels?: any[];
-  validCoupons?: any[];
+  levels?: unknown[];
+  validCoupons?: unknown[];
 }
 
 interface StatCardProps {

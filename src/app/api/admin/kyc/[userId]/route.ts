@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     // Get authorization header
@@ -21,8 +21,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Get userId from params
-    const { userId } = params;
+    // Get userId from params (await the Promise in Next.js 15)
+    const { userId } = await params;
 
     // Call backend API
     const result = await deleteKYCFromBackend(token, userId);

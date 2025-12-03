@@ -1,9 +1,62 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Mail, Trash2, Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
 import adminApi from "@/utils/api";
+
+interface InstructorData {
+  _id?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  username?: string;
+  profile?: {
+    avatar?: { url: string };
+    phone?: string;
+    country?: string;
+    city?: string;
+    bio?: string;
+    socialLinks?: {
+      facebook?: string;
+      linkedin?: string;
+      github?: string;
+      twitter?: string;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  };
+  stats?: {
+    activeMissions?: number;
+    totalMissions?: number;
+    [key: string]: unknown;
+  };
+  earnings?: {
+    totalEarnings?: number;
+    currency?: string;
+    [key: string]: unknown;
+  };
+  earningsBalance?: number;
+  [key: string]: unknown;
+}
+
+interface MissionData {
+  _id?: string;
+  title?: string;
+  thumbnail?: { url: string };
+  levels?: Array<{ name?: string; title?: string; description?: string; [key: string]: unknown }>;
+  tags?: Array<string | unknown>;
+  isPublished?: boolean;
+  status?: string;
+  [key: string]: unknown;
+}
+
+interface Level {
+  name?: string;
+  title?: string;
+  description?: string;
+  [key: string]: unknown;
+}
 
 interface ProfileTabProps {
   label: string;
@@ -27,7 +80,7 @@ function ProfileTab({ label, isActive, onClick }: ProfileTabProps) {
   );
 }
 
-function ProfileSummaryCard({ instructorData }: { instructorData: any }) {
+function ProfileSummaryCard({ instructorData }: { instructorData: InstructorData }) {
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -43,9 +96,11 @@ function ProfileSummaryCard({ instructorData }: { instructorData: any }) {
       <div className="flex items-start" style={{ gap: "var(--spacing-lg)" }}>
         {/* Profile Picture */}
         {instructorData?.profile?.avatar?.url ? (
-          <img
+          <Image
             src={instructorData.profile.avatar.url}
-            alt={`${instructorData.firstName} ${instructorData.lastName}`}
+            alt={`${instructorData.firstName || ""} ${instructorData.lastName || ""}`}
+            width={80}
+            height={80}
             className="w-20 h-20 rounded-full object-cover flex-shrink-0"
           />
         ) : (
@@ -116,7 +171,7 @@ function ProfileSummaryCard({ instructorData }: { instructorData: any }) {
   );
 }
 
-function BioSection({ instructorData }: { instructorData: any }) {
+function BioSection({ instructorData }: { instructorData: InstructorData }) {
   return (
     <div
       className="bg-[#0C0C0C] rounded-lg"
@@ -146,7 +201,7 @@ function BioSection({ instructorData }: { instructorData: any }) {
 function PersonalInformationSection({
   instructorData,
 }: {
-  instructorData: any;
+  instructorData: InstructorData;
 }) {
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
@@ -205,7 +260,7 @@ function PersonalInformationSection({
   );
 }
 
-function SocialLinksSection({ instructorData }: { instructorData: any }) {
+function SocialLinksSection({ instructorData }: { instructorData: InstructorData }) {
   const socialLinks = [
     {
       platform: "Facebook",
@@ -264,8 +319,8 @@ function SocialLinksSection({ instructorData }: { instructorData: any }) {
 
 export default function UserProfileTabs() {
   const [activeTab, setActiveTab] = useState("User Profile");
-  const [userData, setUserData] = useState<any>(null);
-  const [missionData, setMissionData] = useState<any>(null);
+  const [userData, setUserData] = useState<InstructorData | null>(null);
+  const [missionData, setMissionData] = useState<MissionData | null>(null);
   const [userType, setUserType] = useState<
     "instructor" | "student" | "affiliate" | null
   >(null);
@@ -413,7 +468,7 @@ export default function UserProfileTabs() {
       if (response.status === 200) {
         console.log("Mission published successfully");
         // Update the mission data in state
-        setMissionData((prev: any) => ({
+        setMissionData((prev: MissionData | null) => ({
           ...prev,
           isPublished: true,
           status: "published",
@@ -682,9 +737,11 @@ export default function UserProfileTabs() {
                     className="rounded-lg overflow-hidden w-[200px] h-[150px]"
                     style={{ marginBottom: "var(--spacing-md)" }}
                   >
-                    <img
+                    <Image
                       src={missionData.thumbnail.url}
-                      alt={missionData.title}
+                      alt={missionData.title || "Mission thumbnail"}
+                      width={200}
+                      height={150}
                       className="w-full h-40 object-cover"
                     />
                   </div>
@@ -754,7 +811,7 @@ export default function UserProfileTabs() {
                           missionData.levels.length > 0 ? (
                             <div className="flex flex-col">
                               {missionData.levels.map(
-                                (level: any, index: number) => (
+                                (level: Level, index: number) => (
                                   <span key={index} className="text-xs">
                                     {level.name ||
                                       level.title ||
@@ -806,7 +863,7 @@ export default function UserProfileTabs() {
                       className="flex flex-wrap"
                       style={{ gap: "var(--spacing-sm)" }}
                     >
-                      {missionData.tags.map((tag: any, index: number) => {
+                      {missionData.tags.map((tag: string | unknown, index: number) => {
                         let tagText = tag;
                         try {
                           if (typeof tag === "string" && tag.startsWith("[")) {

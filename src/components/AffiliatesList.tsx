@@ -438,6 +438,7 @@ export default function AffiliatesList() {
           const axiosError = err as {
             response?: { status?: number; data?: unknown; headers?: unknown };
           };
+          console.error("Axios response error:", axiosError.response);
         }
 
         if (err && typeof err === "object" && "request" in err) {

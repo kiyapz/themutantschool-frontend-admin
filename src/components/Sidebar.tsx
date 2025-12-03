@@ -12,7 +12,6 @@ import {
   DollarSign,
   Settings,
   UserCheck,
-  Menu,
   X,
   LogOut,
   RotateCcw,

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     // Get authorization header
@@ -39,8 +39,8 @@ export async function PATCH(
       );
     }
 
-    // Get userId from params
-    const { userId } = params;
+    // Get userId from params (await the Promise in Next.js 15)
+    const { userId } = await params;
 
     // Call backend API
     const result = await verifyKYCFromBackend(

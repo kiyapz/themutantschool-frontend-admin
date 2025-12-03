@@ -13,7 +13,7 @@ interface LayoutWrapperProps {
 export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const { isAuthenticated, loading } = useAuth();
+  const { loading } = useAuth();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);

@@ -6,7 +6,6 @@ import adminApi from "@/utils/api";
 import TransactionDetailModal from "./TransactionDetailModal";
 
 export interface Transaction {
-  
   _id: string;
   missionId: string;
   studentId?: string;
@@ -253,7 +252,9 @@ export default function PaymentTabs() {
           const transData = response.data.data.transactions;
 
           // Get all transactions from all months, not just current month
-          const getAllTransactions = (monthlyData: any) => {
+          const getAllTransactions = (monthlyData: {
+            monthlyTransactions?: Record<string, Transaction[]>;
+          }) => {
             if (!monthlyData || !monthlyData.monthlyTransactions) return [];
 
             // Flatten all monthly transactions into a single array
@@ -366,7 +367,6 @@ export default function PaymentTabs() {
           >
             Payouts
           </button>
-         
         </div>
 
         {/* Tab Content */}

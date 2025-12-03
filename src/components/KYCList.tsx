@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { MoreHorizontal, Eye, Check, X, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import adminApi from "@/utils/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -314,42 +315,7 @@ export default function KYCList() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted) {
-      fetchKYC();
-    }
-  }, [mounted, statusFilter, page]);
-
-  useEffect(() => {
-    // Close dropdown when clicking outside
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (dropdownOpen && !target.closest("[data-dropdown]")) {
-        setDropdownOpen(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dropdownOpen]);
-
-  // Auto-dismiss error messages after 5 seconds
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        setError(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
-
-  const fetchKYC = async () => {
+  const fetchKYC = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -392,7 +358,42 @@ export default function KYCList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, page]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchKYC();
+    }
+  }, [mounted, fetchKYC]);
+
+  useEffect(() => {
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (dropdownOpen && !target.closest("[data-dropdown]")) {
+        setDropdownOpen(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  // Auto-dismiss error messages after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const handleRowClick = (kyc: KYC) => {
     setSelectedKyc(kyc);
@@ -458,11 +459,11 @@ export default function KYCList() {
       } else {
         setError(response.data.error || "Failed to approve KYC");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error approving KYC:", err);
       const errorMsg =
-        err.response?.data?.error ||
-        err.message ||
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        (err as Error)?.message ||
         "An error occurred while approving KYC";
       setError(errorMsg);
     } finally {
@@ -507,11 +508,11 @@ export default function KYCList() {
       } else {
         setError(response.data.error || "Failed to reject KYC");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error rejecting KYC:", err);
       const errorMsg =
-        err.response?.data?.error ||
-        err.message ||
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        (err as Error)?.message ||
         "An error occurred while rejecting KYC";
       setError(errorMsg);
     } finally {
@@ -554,11 +555,11 @@ export default function KYCList() {
       } else {
         setError(response.data.error || "Failed to delete KYC");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error deleting KYC:", err);
       const errorMsg =
-        err.response?.data?.error ||
-        err.message ||
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        (err as Error)?.message ||
         "An error occurred while deleting KYC";
       setError(errorMsg);
     } finally {
@@ -1023,9 +1024,11 @@ export default function KYCList() {
                         <div className="text-sm text-[var(--text-secondary)] mb-3">
                           Front Document
                         </div>
-                        <img
+                        <Image
                           src={selectedKyc.proofFrontUrl}
                           alt="Front Document"
+                          width={800}
+                          height={400}
                           className="w-full rounded-lg border border-[var(--border-primary)]"
                           style={{ maxHeight: "400px", objectFit: "contain" }}
                         />
@@ -1040,9 +1043,11 @@ export default function KYCList() {
                         <div className="text-sm text-[var(--text-secondary)] mb-3">
                           Back Document
                         </div>
-                        <img
+                        <Image
                           src={selectedKyc.proofBackUrl}
                           alt="Back Document"
+                          width={800}
+                          height={400}
                           className="w-full rounded-lg border border-[var(--border-primary)]"
                           style={{ maxHeight: "400px", objectFit: "contain" }}
                         />

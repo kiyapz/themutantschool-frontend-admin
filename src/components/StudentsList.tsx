@@ -2,8 +2,35 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { MoreHorizontal, Trash2 } from "lucide-react";
 import adminApi from "@/utils/api";
+
+interface CompletedMission {
+  _id?: string;
+  missionId?: string;
+  [key: string]: unknown;
+}
+
+interface StudentFromAPI {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  role: string;
+  isActive: boolean;
+  createdAt: string;
+  profile: {
+    avatar?: { url: string };
+    phone?: string;
+    country: string;
+    city: string;
+  };
+  completedMissions?: CompletedMission[];
+  badges?: unknown[];
+  [key: string]: unknown;
+}
 
 interface Student {
   _id: string;
@@ -20,7 +47,7 @@ interface Student {
     country: string;
     city: string;
   };
-  completedMissions: any[];
+  completedMissions: CompletedMission[];
   // Computed properties
   status: "active" | "inactive";
   joinDate: string;
@@ -86,9 +113,11 @@ function StudentRow({
       <td style={{ padding: "var(--spacing-md)" }}>
         <div className="flex items-center" style={{ gap: "var(--spacing-sm)" }}>
           {student.profile.avatar?.url ? (
-            <img
+            <Image
               src={student.profile.avatar.url}
               alt={fullName}
+              width={32}
+              height={32}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
@@ -334,9 +363,10 @@ export default function StudentsList() {
         if (studentsData && Array.isArray(studentsData)) {
           console.log(`✅ Success! Found ${studentsData.length} students.`);
           // Transform data to match front-end interface
-          const transformedStudents = studentsData.map((student: any) => ({
+          const transformedStudents = studentsData.map((student: StudentFromAPI) => ({
             ...student,
-            status: student.isActive ? "active" : "inactive",
+            completedMissions: student.completedMissions || [],
+            status: (student.isActive ? "active" : "inactive") as "active" | "inactive",
             joinDate: student.createdAt,
             enrollment: {
               enrolledMissions: student.completedMissions?.length || 0, // Assuming enrolled is same as completed for now
@@ -439,9 +469,10 @@ export default function StudentsList() {
                         `✅ Retry Success! Found ${studentsData.length} students.`
                       );
                       const transformedStudents = studentsData.map(
-                        (student: any) => ({
+                        (student: StudentFromAPI) => ({
                           ...student,
-                          status: student.isActive ? "active" : "inactive",
+                          completedMissions: student.completedMissions || [],
+                          status: (student.isActive ? "active" : "inactive") as "active" | "inactive",
                           joinDate: student.createdAt,
                           enrollment: {
                             enrolledMissions:

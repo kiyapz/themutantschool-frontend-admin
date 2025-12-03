@@ -1,4 +1,4 @@
-import { DollarSign, Hash, Reply, Trash2 } from "lucide-react";
+import { DollarSign, Hash } from "lucide-react";
 
 interface InboxItem {
   id: string;

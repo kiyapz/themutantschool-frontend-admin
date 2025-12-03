@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Search,
   Bell,
@@ -112,9 +113,11 @@ export default function Header({ onMenuToggle }: HeaderProps) {
           >
             <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
               {user?.profile?.avatar?.url ? (
-                <img
+                <Image
                   src={user.profile.avatar.url}
                   alt="Profile"
+                  width={32}
+                  height={32}
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
@@ -152,9 +155,11 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                       {user?.profile?.avatar?.url ? (
-                        <img
+                        <Image
                           src={user.profile.avatar.url}
                           alt="Profile"
+                          width={40}
+                          height={40}
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       ) : (

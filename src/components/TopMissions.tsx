@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { fetchTopMissions } from "@/utils/api";
 
 interface Mission {
@@ -29,9 +30,9 @@ interface Mission {
     type: string;
   };
   tags: string[];
-  levels: any[];
-  reviews: any[];
-  validCoupons: any[];
+  levels: unknown[];
+  reviews: unknown[];
+  validCoupons: unknown[];
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -51,9 +52,11 @@ function MissionCard({ mission }: MissionCardProps) {
         {/* Thumbnail */}
         <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-red-500 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
           {mission.thumbnail?.url ? (
-            <img
+            <Image
               src={mission.thumbnail.url}
               alt={mission.title}
+              width={64}
+              height={64}
               className="w-full h-full object-cover rounded-lg"
             />
           ) : (

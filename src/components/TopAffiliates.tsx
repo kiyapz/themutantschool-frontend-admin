@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { fetchTopAffiliates } from "@/utils/api";
 
 interface Affiliate {
@@ -38,11 +39,11 @@ interface Affiliate {
   earningsBalance: number;
   pendingBalance: number;
   walletBalance: number;
-  completedMissions: any[];
-  badges: any[];
-  activityLog: any[];
-  affiliateWithdrawals: any[];
-  transactions: any[];
+  completedMissions: unknown[];
+  badges: unknown[];
+  activityLog: unknown[];
+  affiliateWithdrawals: unknown[];
+  transactions: unknown[];
   streakCount: number;
   xp: number;
   createdAt: string;
@@ -64,9 +65,11 @@ function AffiliateCard({ affiliate }: AffiliateCardProps) {
         {/* Avatar */}
         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-red-500 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden">
           {affiliate.profile?.avatar?.url ? (
-            <img
+            <Image
               src={affiliate.profile.avatar.url}
               alt={`${affiliate.firstName} ${affiliate.lastName}`}
+              width={48}
+              height={48}
               className="w-full h-full object-cover rounded-full"
             />
           ) : (

@@ -32,6 +32,12 @@ function StatCard({ title, value, loading = false }: StatCardProps) {
   );
 }
 
+interface InstructorData {
+  isActive: boolean;
+  isVerified: boolean;
+  [key: string]: unknown;
+}
+
 export default function InstructorStats() {
   const [stats, setStats] = useState({
     totalInstructors: 0,
@@ -86,11 +92,11 @@ export default function InstructorStats() {
 
         const totalInstructors = instructors.length;
         const activeInstructors = instructors.filter(
-          (instructor: any) => instructor.isActive
+          (instructor: InstructorData) => instructor.isActive
         ).length;
         const inactiveInstructors = totalInstructors - activeInstructors;
         const verifiedInstructors = instructors.filter(
-          (instructor: any) => instructor.isVerified
+          (instructor: InstructorData) => instructor.isVerified
         ).length;
 
         console.log("Calculated stats:", {

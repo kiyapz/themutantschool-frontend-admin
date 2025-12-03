@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { MoreHorizontal, Check, X, Eye, AlertCircle } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { MoreHorizontal, Check, X, Eye } from "lucide-react";
 import adminApi from "@/utils/api";
 
 const Dropdown = ({
@@ -137,7 +137,7 @@ export interface Refund {
       referenceId?: string;
     };
     progress?: {
-      completedLevels?: any[];
+      completedLevels?: unknown[];
       progressPercent?: number;
     };
     releaseDate?: string;
@@ -349,46 +349,7 @@ export default function RefundsList() {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (mounted) {
-      fetchRefunds();
-    }
-  }, [mounted, statusFilter]);
-
-  useEffect(() => {
-    // Close dropdown when clicking outside
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      // Check if click is outside the dropdown container
-      // Also check if it's not a button that toggles the dropdown
-      if (false && !target.closest("[data-dropdown]")) { // This line was removed as per the edit hint
-        // setDropdownOpen(null); // This line was removed as per the edit hint
-      }
-    };
-
-    // Use a slight delay to ensure the toggle click completes first
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("click", handleClickOutside, true);
-    }, 0);
-
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener("click", handleClickOutside, true);
-    };
-  }, []); // This useEffect was removed as per the edit hint
-
-  // Auto-dismiss messages after 5 seconds
-  useEffect(() => {
-    if (error || successMessage) {
-      const timer = setTimeout(() => {
-        setError(null);
-        setSuccessMessage(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error, successMessage]);
-
-  const fetchRefunds = async () => {
+  const fetchRefunds = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -430,7 +391,46 @@ export default function RefundsList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter]);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchRefunds();
+    }
+  }, [mounted, fetchRefunds]);
+
+  useEffect(() => {
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      // Check if click is outside the dropdown container
+      // Also check if it's not a button that toggles the dropdown
+      if (false && !target.closest("[data-dropdown]")) { // This line was removed as per the edit hint
+        // setDropdownOpen(null); // This line was removed as per the edit hint
+      }
+    };
+
+    // Use a slight delay to ensure the toggle click completes first
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("click", handleClickOutside, true);
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("click", handleClickOutside, true);
+    };
+  }, []); // This useEffect was removed as per the edit hint
+
+  // Auto-dismiss messages after 5 seconds
+  useEffect(() => {
+    if (error || successMessage) {
+      const timer = setTimeout(() => {
+        setError(null);
+        setSuccessMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, successMessage]);
 
   const handleRowClick = (refund: Refund) => {
     setSelectedRefund(refund);
@@ -464,11 +464,11 @@ export default function RefundsList() {
       } else {
         setError(response.data.error || "Failed to approve refund");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error approving refund:", err);
       const errorMsg =
-        err.response?.data?.error ||
-        err.message ||
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        (err as Error)?.message ||
         "An error occurred while approving refund";
       setError(errorMsg);
     } finally {
@@ -500,11 +500,11 @@ export default function RefundsList() {
       } else {
         setError(response.data.error || "Failed to reject refund");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error rejecting refund:", err);
       const errorMsg =
-        err.response?.data?.error ||
-        err.message ||
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        (err as Error)?.message ||
         "An error occurred while rejecting refund";
       setError(errorMsg);
     } finally {

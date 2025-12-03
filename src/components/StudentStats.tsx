@@ -32,8 +32,15 @@ function StatCard({ title, value, loading = false }: StatCardProps) {
   );
 }
 
+interface StudentData {
+  isActive: boolean;
+  firstName: string;
+  lastName: string;
+  badges?: unknown[];
+}
+
 export default function StudentStats() {
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<StudentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -76,15 +83,14 @@ export default function StudentStats() {
             console.log("Students length:", studentsData.length);
 
             const totalStudents = studentsData.length;
-            const activeStudents = studentsData.filter((student: any) => {
+            const activeStudents = studentsData.filter((student: StudentData) => {
               console.log(
                 `Checking student ${student.firstName} ${student.lastName}: isActive = ${student.isActive}`
               );
               return student.isActive;
             }).length;
-            const inactiveStudents = totalStudents - activeStudents;
             const totalCertificates = studentsData.reduce(
-              (sum: number, student: any) => {
+              (sum: number, student: StudentData) => {
                 console.log(
                   `Adding certificates for ${student.firstName}: ${
                     student.badges?.length || 0
@@ -99,7 +105,6 @@ export default function StudentStats() {
             console.log("Calculated student stats:", {
               totalStudents,
               activeStudents,
-              inactiveStudents,
               totalCertificates,
             });
 
@@ -124,7 +129,13 @@ export default function StudentStats() {
         }
 
         if (error && typeof error === "object" && "response" in error) {
-          const axiosError = error as any;
+          const axiosError = error as {
+            response?: {
+              status?: number;
+              data?: unknown;
+              headers?: unknown;
+            };
+          };
           console.error("Axios error response:", axiosError.response);
           console.error("Axios error status:", axiosError.response?.status);
           console.error("Axios error data:", axiosError.response?.data);
@@ -132,7 +143,7 @@ export default function StudentStats() {
         }
 
         if (error && typeof error === "object" && "request" in error) {
-          const axiosError = error as any;
+          const axiosError = error as { request?: unknown };
           console.error("Axios request error:", axiosError.request);
         }
 
@@ -160,11 +171,10 @@ export default function StudentStats() {
 
   const totalStudents = students.length;
   const activeStudents = students.filter(
-    (student: any) => student.isActive
+    (student: StudentData) => student.isActive
   ).length;
-  const inactiveStudents = totalStudents - activeStudents;
   const totalCertificates = students.reduce(
-    (sum: number, student: any) => sum + (student.badges?.length || 0),
+    (sum: number, student: StudentData) => sum + (student.badges?.length || 0),
     0
   );
 
