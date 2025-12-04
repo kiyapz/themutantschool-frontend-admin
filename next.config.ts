@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "kiyapz.s3.eu-central-2.wasabisys.com",
         port: "",
-        pathname: "/avatars/**",
+        pathname: "/**",
       },
     ],
   },

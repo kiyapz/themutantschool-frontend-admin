@@ -434,9 +434,11 @@ export default function MissionsList() {
   const handlePublishMission = async (missionId: string) => {
     try {
       console.log("Publishing mission:", missionId);
-      const response = await adminApi.put(`/missions/${missionId}/publish`);
+      const response = await adminApi.put(`/missions/${missionId}/publish`, {
+        isPublished: true,
+      });
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.data?.success) {
         console.log("Mission published successfully");
         // Update the mission in the local state
         setMissions((prevMissions) =>
@@ -449,11 +451,11 @@ export default function MissionsList() {
         setDropdownOpen(null);
       } else {
         console.error("Failed to publish mission:", response.data);
-        setError("Failed to publish mission. Please try again.");
+        setError(response.data?.message || "Failed to publish mission. Please try again.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error publishing mission:", err);
-      setError("Error publishing mission. Please try again.");
+      setError(err.response?.data?.message || "Error publishing mission. Please try again.");
     }
   };
 

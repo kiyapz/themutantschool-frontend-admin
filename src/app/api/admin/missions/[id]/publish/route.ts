@@ -23,11 +23,20 @@ export async function PUT(
       );
     }
 
-    const token = authHeader.substring(7); // Remove "Bearer " prefix
+    const token = authHeader.substring(7); // Get the request body (optional)
     const url = `https://themutantschool-backend.onrender.com/api/admin/missions/${missionId}/publish`;
 
-    // Get the request body
-    const body = await request.json();
+    // Get the request body (if present)
+    let body = {};
+    try {
+      const contentType = request.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        body = await request.json();
+      }
+    } catch (error) {
+      // If no body is provided, use default
+      body = { isPublished: true };
+    }
     console.log("Request body:", body);
 
     console.log("--- PUT Publish Mission API Call ---");
