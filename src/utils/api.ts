@@ -147,7 +147,7 @@ couponApi.interceptors.response.use(
   (response) => {
     console.log("=== COUPON API RESPONSE ===");
     console.log("URL:", response.config.url);
-    console.log("Full URL:", response.config.baseURL + response.config.url);
+    console.log("Full URL:", (response.config.baseURL || "") + (response.config.url || ""));
     console.log("Method:", response.config.method?.toUpperCase());
     console.log("Status:", response.status);
     console.log("Status Text:", response.statusText);
